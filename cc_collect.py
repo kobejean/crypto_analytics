@@ -3,7 +3,22 @@ import json
 import requests
 
 
-url = 'https://min-api.cryptocompare.com/data/histoday'
+daily = 'histoday'
+hourly = 'histohour'
+minute = 'histominute'
+
+url = 'https://min-api.cryptocompare.com/data/'
+
+interval = input('Interval: ')
+if interval == 'daily':
+    url += daily
+elif interval == 'hourly':
+    url += hourly
+elif interval == 'minute':
+    url += minute
+else:
+    raise ValueError('Interval must be daily, hourly or minute')
+
 parameters = {
     'fsym': input('Symbols: '),
     'tsym': input('Convert Symbols: '),
