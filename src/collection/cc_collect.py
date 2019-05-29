@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from __context__ import stock_analytics
-from stock_analytics.collection.data_source import CryptoCompare
-from stock_analytics.types import Interval
+from __context__ import crypto_analytics
+from crypto_analytics.collection.data_source import CryptoCompare
+from crypto_analytics.types import Interval
 
 interval = Interval(input('Interval: '))
 fsym = input('Symbols: ')
