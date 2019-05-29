@@ -1,9 +1,10 @@
-# stock_analytics
+# crypto_analytics
 Python tools for analyzing stock data
 
 ## Data Collection
 
-*Crypto Compare*
+**Crypto Compare**
+
 run the python script at `src/collection/cc_collect.py` to collect data from
 crypto compare:
 

@@ -1,4 +1,4 @@
-""" This file lets us import the stock_analytics module in this directory """
+""" This file lets us import the crypto_analytics module in this directory """
 import os
 import sys
 
