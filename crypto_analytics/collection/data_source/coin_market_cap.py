@@ -6,7 +6,7 @@ from enum import Enum
 from requests import Request, Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 from .base import DataSource
-from ...types.interval import Interval
+from ...types import Interval
 
 class CoinMarketCap(DataSource):
 
@@ -20,8 +20,8 @@ class CoinMarketCap(DataSource):
         }
         self.params = {}
 
-        self.session = Session() 
-        self.session.headers.update(self.headers)        
+        self.session = Session()
+        self.session.headers.update(self.headers)
 
         super().__init__()
 
@@ -34,12 +34,16 @@ class CoinMarketCap(DataSource):
                                                                     response.reason))
 
             data = response.json()
-            self.df = pd.DataFrame(data['data'])
-            return self.df
+            self.data = pd.DataFrame(data['data'])
+            return self.data
         except (ConnectionError, Timeout, TooManyRedirects) as e:
             print(e)
-            self.df = pd.DataFrame()
-            return self.df
+            self.data = pd.DataFrame()
+            return self.data
 
     def write(self, filepath: str):
-        self.df.to_csv(filepath)
+        self.data.to_csv(filepath)
+
+    # TODO: needs implementation
+    def get_time(self):
+        return None
