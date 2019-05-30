@@ -3,7 +3,7 @@ import json
 import requests
 
 from .base import DataSource
-from ...types.interval import Interval
+from ...types import Interval
 
 class CryptoCompare(DataSource):
 
@@ -35,9 +35,12 @@ class CryptoCompare(DataSource):
         response.raise_for_status()
 
         data = response.json()
-        self.df = pd.DataFrame(data['Data'])
-        return self.df
+        self.data = pd.DataFrame(data['Data'])
+        return self.data
 
 
     def write(self, filepath: str):
-        self.df.to_csv(filepath)
+        self.data.to_csv(filepath)
+
+    def get_time(self):
+        return self.data['time']

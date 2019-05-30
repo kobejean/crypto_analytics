@@ -1,20 +1,21 @@
 import pandas as pd
 from abc import ABC, abstractmethod
+from typing import Dict
 
-class DataSource(ABC):
-    def __init__(self):
+from ..data_source import DataSource
+
+class DataHandler(ABC):
+    DataSourcesType = Dict[str, DataSource]
+
+    def __init__(self, data_sources: DataSourcesType):
         self.data = None
+        self.data_sources = data_sources
         super().__init__()
 
     @abstractmethod
     def fetch(self) -> pd.DataFrame:
         pass
 
-    # TODO: Depricate and let data_handler write files
     @abstractmethod
     def write(self, filepath: str):
-        pass
-
-    @abstractmethod
-    def get_time(self):
         pass
