@@ -29,13 +29,16 @@ class CoinMarketCap(DataSource):
         try:
             response = self.session.get(self.url, params=self.params)
             response.raise_for_status
+            if response.status_code != 200:
+                raise ConnectionError('Code: {}\nReason: {}'.format(response.status_code,
+                                                                    response.reason))
 
             data = response.json()
             self.df = pd.DataFrame(data['data'])
             return self.df
         except (ConnectionError, Timeout, TooManyRedirects) as e:
             print(e)
-            self.df = df.DataFrame()
+            self.df = pd.DataFrame()
             return self.df
 
     def write(self, filepath: str):
