@@ -1,5 +1,5 @@
 # crypto_analytics
-Python tools for analyzing stock data
+Python tools for analyzing crypto currency data
 
 ## Data Collection
 
