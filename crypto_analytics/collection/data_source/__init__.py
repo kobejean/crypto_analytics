@@ -1,9 +1,9 @@
 """ Contains data source classes """
-from crypto_analytics.collection.data_source.base import DataSource
-from crypto_analytics.collection.data_source.candles import CandlesDataSource
-
-from crypto_analytics.collection.data_source.crypto_compare import CryptoCompareCandles
+# base abstract classes
+from crypto_analytics.collection.data_source.base import DataSource, OHLCDataSource, OHLCVDataSource
+# other classes
+from crypto_analytics.collection.data_source.crypto_compare import CryptoCompareOHLC
 from crypto_analytics.collection.data_source.coin_market_cap import CoinMarketCap
-from crypto_analytics.collection.data_source.kraken import KrakenCandles
+from crypto_analytics.collection.data_source.kraken import KrakenOHLCV
 
-__all__ = ["base", "candles", "crypto_compare", "coin_market_cap"]
+__all__ = ["base", "crypto_compare", "coin_market_cap", "kraken"]

@@ -2,10 +2,10 @@ import pandas as pd
 import json
 import requests
 
-from crypto_analytics.collection.data_source import CandlesDataSource
+from crypto_analytics.collection.data_source import OHLCDataSource
 from crypto_analytics.types  import Interval
 
-class CryptoCompareCandles(CandlesDataSource):
+class CryptoCompareOHLC(OHLCDataSource):
     endpoints = {
         Interval.MINUTE: 'data/histominute',
         Interval.HOURLY: 'data/histohour',
@@ -18,7 +18,7 @@ class CryptoCompareCandles(CandlesDataSource):
         self.fsym = fsym
         self.tsym = tsym
         self.limit = limit
-        self.endpoint = CryptoCompareCandles.endpoints.get(interval)
+        self.endpoint = CryptoCompareOHLC.endpoints.get(interval)
         super().__init__(interval)
 
     def fetch(self) -> pd.DataFrame:
@@ -54,9 +54,9 @@ class CryptoCompareCandles(CandlesDataSource):
     def get_low(self):
         return self.data['low']
 
-    # TODO: determine whether to use volumeto or volumefrom
-    def get_volume(self):
-        return self.data['volumeto']
+    # # TODO: determine whether to use volumeto or volumefrom
+    # def get_volume(self):
+    #     return self.data['volumeto']
 
     # private methods
 
@@ -64,7 +64,7 @@ class CryptoCompareCandles(CandlesDataSource):
         # validate interval
         if interval is None:
             raise ValueError('Interval must be specified')
-        if CryptoCompareCandles.endpoints.get(interval) is None:
+        if CryptoCompareOHLC.endpoints.get(interval) is None:
             raise ValueError('Interval must be daily, hourly or minute')
         # validate fsym
         if tsym is None:

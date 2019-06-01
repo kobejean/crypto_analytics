@@ -3,10 +3,10 @@ import json
 import krakenex
 from typing import Dict, Any
 
-from crypto_analytics.collection.data_source import CandlesDataSource
+from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types import Interval
 
-class KrakenCandles(CandlesDataSource):
+class KrakenOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
 
     def __init__(self, interval: Interval, pair: str, since: int = None):
