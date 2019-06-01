@@ -3,10 +3,10 @@ import json
 import krakenex
 from typing import Dict, Any
 
-from .base import DataSource
+from .finance import FinancialDataSource
 from ...types import Interval
 
-class KrakenOHLC(DataSource):
+class KrakenOHLC():
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
 
     def __init__(self, interval: Interval, pair: str, since: int = None):
@@ -47,3 +47,23 @@ class KrakenOHLC(DataSource):
 
     def get_time(self):
         return self.data['time']
+
+    # TODO: implement this getter method
+    def get_open(self, interval: Interval):
+        pass
+
+    # TODO: implement this getter method
+    def get_close(self, interval: Interval):
+        pass
+
+    # TODO: implement this getter method
+    def get_high(self, interval: Interval):
+        pass
+
+    # TODO: implement this getter method
+    def get_low(self, interval: Interval):
+        pass
+
+    # TODO: implement this getter method
+    def get_volume(self, inteval: Interval):
+        pass
