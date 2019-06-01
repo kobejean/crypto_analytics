@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as  pd
 import json
 import krakenex
 from typing import Dict, Any
@@ -6,7 +6,7 @@ from typing import Dict, Any
 from .finance import FinancialDataSource
 from ...types import Interval
 
-class KrakenOHLC():
+class KrakenOHLC(FinancialDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
 
     def __init__(self, interval: Interval, pair: str, since: int = None):
