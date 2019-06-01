@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import requests
+from typing import Dict, Union
 
 from crypto_analytics.collection.data_source import OHLCDataSource
 from crypto_analytics.types  import Interval
@@ -24,7 +25,7 @@ class CryptoCompareOHLC(OHLCDataSource):
     def fetch(self) -> pd.DataFrame:
         url = 'https://min-api.cryptocompare.com/{}'.format(self.endpoint)
 
-        parameters = {
+        parameters: Dict[str, Union[int, str]] = {
             'fsym': self.fsym,
             'tsym': self.tsym,
             'limit': self.limit

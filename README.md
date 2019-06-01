@@ -1,6 +1,15 @@
 # crypto_analytics
 Python tools for analyzing crypto currency data
 
+## Code Linting
+
+**mypy**
+
+```shell
+mypy  --ignore-missing-imports crypto_analytics
+```
+
+
 ## Data Collection
 
 **Crypto Compare**

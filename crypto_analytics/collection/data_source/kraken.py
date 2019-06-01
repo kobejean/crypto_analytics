@@ -1,7 +1,7 @@
 import pandas as  pd
 import json
 import krakenex
-from typing import Dict, Any
+from typing import Dict
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types import Interval

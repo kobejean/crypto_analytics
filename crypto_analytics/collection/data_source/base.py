@@ -4,6 +4,7 @@ from crypto_analytics.types  import Interval
 
 class DataSource(ABC):
     """ An abstract base class for all data sources """
+
     def __init__(self):
         self.data = None
         super().__init__()
