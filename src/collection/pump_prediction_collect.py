@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """ A script that collects data for pump prediction models """
-from __context__ import crypto_analytics
+import crypto_analytics
 from crypto_analytics.collection.data_handler import PumpPredictionDataHandler
 
 # pair = input('Kraken pair code: ')

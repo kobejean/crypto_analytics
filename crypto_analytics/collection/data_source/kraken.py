@@ -3,8 +3,8 @@ import json
 import krakenex
 from typing import Dict, Any
 
-from .candles import CandlesDataSource
-from ...types import Interval
+from crypto_analytics.collection.data_source import CandlesDataSource
+from crypto_analytics.types import Interval
 
 class KrakenCandles(CandlesDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']

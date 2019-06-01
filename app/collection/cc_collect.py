@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __context__ import crypto_analytics
+import crypto_analytics
 from crypto_analytics.collection.data_source import CryptoCompareCandles
 from crypto_analytics.types import Interval
 

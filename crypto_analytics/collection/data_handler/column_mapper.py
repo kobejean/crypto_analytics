@@ -1,9 +1,9 @@
 import pandas as pd
 from typing import Dict
 
-from .base import DataHandler
-from ..data_source import DataSource
-from ...types import Interval, MergeType
+from crypto_analytics.collection.data_handler import DataHandler
+from crypto_analytics.collection.data_source import DataSource
+from crypto_analytics.types import Interval, MergeType
 
 class ColumnMapper(DataHandler):
     """ A data handler that combines data sources and renames columns """

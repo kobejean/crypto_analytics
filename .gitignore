@@ -1,1 +1,7 @@
 *.pyc
+*.mypy_cache
+*.csv
+__pycache__
+/*.egg-info
+/build
+/dist

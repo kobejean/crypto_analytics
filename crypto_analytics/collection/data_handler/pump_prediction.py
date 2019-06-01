@@ -1,8 +1,8 @@
 import time
 
-from .column_mapper import ColumnMapper
-from ..data_source import DataSource, CryptoCompareCandles, KrakenCandles
-from ...types import Interval, MergeType
+from crypto_analytics.collection.data_handler import ColumnMapper
+from crypto_analytics.collection.data_source import DataSource, CryptoCompareCandles, KrakenCandles
+from crypto_analytics.types import Interval, MergeType
 
 class PumpPredictionDataHandler(ColumnMapper):
     """ A data handler used to transdorm data for pump prediction models """

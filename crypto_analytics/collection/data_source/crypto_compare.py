@@ -2,8 +2,8 @@ import pandas as pd
 import json
 import requests
 
-from .candles import CandlesDataSource
-from ...types import Interval
+from crypto_analytics.collection.data_source import CandlesDataSource
+from crypto_analytics.types  import Interval
 
 class CryptoCompareCandles(CandlesDataSource):
     endpoints = {
