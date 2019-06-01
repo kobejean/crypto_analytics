@@ -1,6 +1,8 @@
+""" Contains data source classes """
 from .base import DataSource
-from .crypto_compare import CryptoCompare
+from .candles import CandlesDataSource
+from .crypto_compare import CryptoCompareCandles
 from .coin_market_cap import CoinMarketCap
-from .kraken import KrakenOHLC
+from .kraken import KrakenCandles
 
-__all__ = ["base", "crypto_compare", "coin_market_cap"]
+__all__ = ["base", "candles", "crypto_compare", "coin_market_cap"]

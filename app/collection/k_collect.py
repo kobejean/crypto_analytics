@@ -2,7 +2,7 @@
 import time
 
 from __context__ import crypto_analytics
-from crypto_analytics.collection.data_source import KrakenOHLC
+from crypto_analytics.collection.data_source import KrakenCandles
 from crypto_analytics.types import Interval
 
 # interval = Interval(input('Interval: '))
@@ -17,7 +17,13 @@ interval_duration = interval.to_unix_time()
 since = int(time.time() - 60*interval_duration)
 output_file = 'k_collect_data.csv'
 
-kraken_ohlc = KrakenOHLC(interval, pair, since)
-kraken_ohlc.fetch()
-print(kraken_ohlc.data)
-kraken_ohlc.write(output_file)
+candles = KrakenCandles(interval, pair, since)
+candles.fetch()
+print(candles.data)
+print('time:', candles.get_time().head(), sep='\n')
+print('open:', candles.get_open().head(), sep='\n')
+print('high:', candles.get_high().head(), sep='\n')
+print('low:', candles.get_low().head(), sep='\n')
+print('close:', candles.get_close().head(), sep='\n')
+print('volume:', candles.get_volume().head(), sep='\n')
+candles.write(output_file)

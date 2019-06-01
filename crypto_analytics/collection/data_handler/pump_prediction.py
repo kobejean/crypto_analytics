@@ -1,7 +1,7 @@
 import time
 
 from .column_mapper import ColumnMapper
-from ..data_source import DataSource, CryptoCompare, KrakenOHLC
+from ..data_source import DataSource, CryptoCompareCandles, KrakenCandles
 from ...types import Interval, MergeType
 
 class PumpPredictionDataHandler(ColumnMapper):
@@ -15,13 +15,13 @@ class PumpPredictionDataHandler(ColumnMapper):
         interval_duration = interval.to_unix_time()
         # calculate time at rows intervals ago
         since = int(time.time() - rows*interval_duration)
-        
+
         data_sources = {
-            'crypto_compare': CryptoCompare(interval, fsym, tsym, limit),
-            'kraken_ohlc': KrakenOHLC(interval, pair, since),
+            'crypto_compare_candles': CryptoCompareCandles(interval, fsym, tsym, limit),
+            'kraken_candles': KrakenCandles(interval, pair, since),
         }
         column_map = {
-            'crypto_compare': {
+            'crypto_compare_candles': {
                 'time': 'time',
                 'open': 'cc_open',
                 'high': 'cc_high',
@@ -30,7 +30,7 @@ class PumpPredictionDataHandler(ColumnMapper):
                 'volumefrom': 'cc_volumefrom',
                 'volumeto': 'cc_volumeto',
             },
-            'kraken_ohlc': {
+            'kraken_candles': {
                 'time': 'time',
                 'open': 'k_open',
                 'high': 'k_high',
