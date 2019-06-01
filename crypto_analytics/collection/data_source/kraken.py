@@ -3,8 +3,8 @@ import json
 import krakenex
 from typing import Dict, Any
 
-from .finance import FinancialDataSource
-from ...types import Interval
+from crypto_analytics.collection.data_source import FinancialDataSource
+from crypto_analytics.types import Interval
 
 class KrakenOHLC(FinancialDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']

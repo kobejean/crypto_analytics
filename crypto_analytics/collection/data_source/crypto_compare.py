@@ -2,10 +2,10 @@ import pandas as pd
 import json
 import requests
 
-from .finance import FinancialDataSource
-from ...types import Interval
+from crypto_analytics.collection.data_source import FinancialDataSource
+from crypto_analytics.types import Interval
 
-class CryptoCompare(DataSource):
+class CryptoCompare(FinancialDataSource):
 
     def __init__(self, endpoint: str, fsym: str, tsym: str, limit: int):
         self.endpoint = endpoint
@@ -37,7 +37,7 @@ class CryptoCompare(DataSource):
     def write(self, filepath: str):
         self.data.to_csv (filepath)
 
-    def get_time(self): 
+    def get_time(self):
         return self.data['time']
 
     def _get_ochlv(self, ochlv_type: str, interval: Interval):

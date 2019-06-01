@@ -2,7 +2,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Dict
 
-from ..data_source import DataSource
+from crypto_analytics.collection.data_source import DataSource
 
 class DataHandler(ABC):
     DataSourcesType = Dict[str, DataSource]

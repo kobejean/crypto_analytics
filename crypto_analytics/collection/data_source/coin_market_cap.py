@@ -5,8 +5,8 @@ import requests
 from enum import Enum
 from requests import Request, Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
-from .base import DataSource
-from ...types import Interval
+from crypto_analytics.collection.data_source import DataSource
+from crypto_analytics.types import Interval
 
 class CoinMarketCap(DataSource):
 

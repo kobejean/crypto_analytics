@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import time
 
-from __context__ import crypto_analytics
+import crypto_analytics
 from crypto_analytics.collection.data_source import KrakenOHLC
 from crypto_analytics.types import Interval
 
