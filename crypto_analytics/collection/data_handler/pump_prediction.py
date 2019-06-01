@@ -1,8 +1,8 @@
 import time
 
 from .column_mapper import ColumnMapper
-from ..data_source import DataSource, CryptoCompare, KrakenOHLC
-from ...types import Interval, MergeType
+from crypto_analytics.collection.data_source import DataSource, CryptoCompare, KrakenOHLC
+from crypto_analytics.types import Interval, MergeType
 
 class PumpPredictionDataHandler(ColumnMapper):
     """ A data handler used to transdorm data for pump prediction models """
@@ -15,7 +15,7 @@ class PumpPredictionDataHandler(ColumnMapper):
         interval_duration = interval.to_unix_time()
         # calculate time at rows intervals ago
         since = int(time.time() - rows*interval_duration)
-        
+
         data_sources = {
             'crypto_compare': CryptoCompare(interval, fsym, tsym, limit),
             'kraken_ohlc': KrakenOHLC(interval, pair, since),

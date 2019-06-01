@@ -1,9 +1,9 @@
 from abc import abstractmethod
-from .base import DataSource
-from ...types import Interval 
+from crypto_analytics.collection.data_source import DataSource
+from crypto_analytics.types import Interval
 
 class FinancialDataSource(DataSource):
-    
+
     def __init__(self):
         super().__init__()
 
