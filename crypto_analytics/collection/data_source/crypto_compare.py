@@ -3,10 +3,10 @@ import json
 import requests
 from typing import Dict, Union
 
-from crypto_analytics.collection.data_source import OHLCDataSource
+from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types  import Interval
 
-class CryptoCompareOHLC(OHLCDataSource):
+class CryptoCompareOHLCV(OHLCVDataSource):
     endpoints = {
         Interval.MINUTE: 'data/histominute',
         Interval.HOURLY: 'data/histohour',
@@ -19,7 +19,7 @@ class CryptoCompareOHLC(OHLCDataSource):
         self.fsym = fsym
         self.tsym = tsym
         self.limit = limit
-        self.endpoint = CryptoCompareOHLC.endpoints.get(interval)
+        self.endpoint = CryptoCompareOHLCV.endpoints.get(interval)
         super().__init__(interval)
 
     def fetch(self) -> pd.DataFrame:
@@ -55,9 +55,8 @@ class CryptoCompareOHLC(OHLCDataSource):
     def get_low(self):
         return self.data['low']
 
-    # # TODO: determine whether to use volumeto or volumefrom
-    # def get_volume(self):
-    #     return self.data['volumeto']
+    def get_volume(self):
+        return self.data['volumefrom']
 
     # private methods
 
@@ -65,7 +64,7 @@ class CryptoCompareOHLC(OHLCDataSource):
         # validate interval
         if interval is None:
             raise ValueError('Interval must be specified')
-        if CryptoCompareOHLC.endpoints.get(interval) is None:
+        if CryptoCompareOHLCV.endpoints.get(interval) is None:
             raise ValueError('Interval must be daily, hourly or minute')
         # validate fsym
         if tsym is None:

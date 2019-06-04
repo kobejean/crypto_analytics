@@ -1,7 +1,7 @@
 import time
 
 from crypto_analytics.collection.data_handler import ColumnMapper
-from crypto_analytics.collection.data_source import CryptoCompareOHLC, KrakenOHLCV
+from crypto_analytics.collection.data_source import CryptoCompareOHLCV, KrakenOHLCV
 from crypto_analytics.types import Interval, MergeType
 
 class PumpPredictionDataHandler(ColumnMapper):
@@ -17,11 +17,11 @@ class PumpPredictionDataHandler(ColumnMapper):
         since = int(time.time() - rows*interval_duration)
 
         data_sources = {
-            'crypto_compare_ohlc': CryptoCompareOHLC(interval, fsym, tsym, limit),
+            'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, fsym, tsym, limit),
             'kraken_ohlcv': KrakenOHLCV(interval, pair, since),
         }
         column_map = {
-            'crypto_compare_ohlc': {
+            'crypto_compare_ohlcv': {
                 'time': 'time',
                 'open': 'cc_open',
                 'high': 'cc_high',
