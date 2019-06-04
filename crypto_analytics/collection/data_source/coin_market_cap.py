@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import requests
+from typing import Dict, Union
 
 from enum import Enum
 from requests import Request, Session
@@ -18,7 +19,7 @@ class CoinMarketCap(DataSource):
         self.headers = {
             'X-CMC_PRO_API_KEY': key,
         }
-        self.params = {}
+        self.params: Dict[str, Union[int, str]] = {}
 
         self.session = Session()
         self.session.headers.update(self.headers)

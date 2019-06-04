@@ -1,28 +1,31 @@
 import pandas as pd
 import json
 import requests
+from typing import Dict, Union
 
-from crypto_analytics.collection.data_source import FinancialDataSource
-from crypto_analytics.types import Interval
+from crypto_analytics.collection.data_source import OHLCVDataSource
+from crypto_analytics.types  import Interval
 
-class CryptoCompare(FinancialDataSource):
+class CryptoCompareOHLCV(OHLCVDataSource):
+    endpoints = {
+        Interval.MINUTE: 'data/histominute',
+        Interval.HOURLY: 'data/histohour',
+        Interval.DAILY: 'data/histoday',
+    }
 
-    def __init__(self, endpoint: str, fsym: str, tsym: str, limit: int):
-        self.endpoint = endpoint
+    def __init__(self, interval: Interval, fsym: str, tsym: str, limit: int):
+        self.__prevalidate(interval, fsym, tsym, limit)
+
         self.fsym = fsym
         self.tsym = tsym
         self.limit = limit
-        self.valid_time_intervals = {
-            Interval.MINUTE: 'data/histominute',
-            Interval.HOURLY: 'data/histohour',
-            Interval.DAILY: 'data/histoday',
-        }
-        super().__init__()
+        self.endpoint = CryptoCompareOHLCV.endpoints.get(interval)
+        super().__init__(interval)
 
     def fetch(self) -> pd.DataFrame:
         url = 'https://min-api.cryptocompare.com/{}'.format(self.endpoint)
 
-        parameters = {
+        parameters: Dict[str, Union[int, str]] = {
             'fsym': self.fsym,
             'tsym': self.tsym,
             'limit': self.limit
@@ -35,30 +38,40 @@ class CryptoCompare(FinancialDataSource):
         return self.data
 
     def write(self, filepath: str):
-        self.data.to_csv (filepath)
+        self.data.to_csv(filepath)
 
     def get_time(self):
         return self.data['time']
 
-    def _get_ochlv(self, ochlv_type: str, interval: Interval):
-        self.endpoint = self.valid_time_intervals.get(interval)
-        if not self.endpoint:
+    def get_open(self):
+        return self.data['open']
+
+    def get_close(self):
+        return self.data['close']
+
+    def get_high(self):
+        return self.data['high']
+
+    def get_low(self):
+        return self.data['low']
+
+    def get_volume(self):
+        return self.data['volumefrom']
+
+    # private methods
+
+    def __prevalidate(self, interval: Interval, fsym: str, tsym: str, limit: int):
+        # validate interval
+        if interval is None:
+            raise ValueError('Interval must be specified')
+        if CryptoCompareOHLCV.endpoints.get(interval) is None:
             raise ValueError('Interval must be daily, hourly or minute')
-
-        ochlv = self.fetch()
-        return ochlv['Data'][ochlv_type]
-
-    def get_open(self, interval: Interval):
-        self._get_ochlv('open', interval)
-
-    def get_close(self, interval: Interval):
-        self._get_ochlv('close', interval)
-
-    def get_high(self, interval: Interval):
-        self._get_ochlv('high', interval)
-
-    def get_low(self, interval: Interval):
-        self._get_ochlv('low', interval)
-
-    def get_volume(self, interval: Interval):
-        self._get_ochlv('volume', interval)
+        # validate fsym
+        if tsym is None:
+            raise ValueError('From symbol (fsym) must be specified')
+        # validate tsym
+        if tsym is None:
+            raise ValueError('To symbol (tsym) must be specified')
+        # validate limit
+        if limit is None:
+            raise ValueError('Limit must be specified')

@@ -1,19 +1,18 @@
 import pandas as  pd
 import json
 import krakenex
-from typing import Dict, Any
+from typing import Dict
 
-from crypto_analytics.collection.data_source import FinancialDataSource
+from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types import Interval
 
-class KrakenOHLC(FinancialDataSource):
+class KrakenOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
 
     def __init__(self, interval: Interval, pair: str, since: int = None):
-        self.interval = interval
         self.pair = pair
         self.since = since
-        super().__init__()
+        super().__init__(interval)
 
     def fetch(self) -> pd.DataFrame:
         interval_ints = {
@@ -48,22 +47,17 @@ class KrakenOHLC(FinancialDataSource):
     def get_time(self):
         return self.data['time']
 
-    # TODO: implement this getter method
-    def get_open(self, interval: Interval):
-        pass
+    def get_open(self):
+        return self.data['open']
 
-    # TODO: implement this getter method
-    def get_close(self, interval: Interval):
-        pass
+    def get_close(self):
+        return self.data['close']
 
-    # TODO: implement this getter method
-    def get_high(self, interval: Interval):
-        pass
+    def get_high(self):
+        return self.data['high']
 
-    # TODO: implement this getter method
-    def get_low(self, interval: Interval):
-        pass
+    def get_low(self):
+        return self.data['low']
 
-    # TODO: implement this getter method
-    def get_volume(self, inteval: Interval):
-        pass
+    def get_volume(self):
+        return self.data['volume']
