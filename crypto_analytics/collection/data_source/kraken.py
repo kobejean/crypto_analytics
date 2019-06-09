@@ -1,6 +1,6 @@
 import pandas as  pd
 import json
-import krakenex
+import requests
 from typing import Dict
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
@@ -25,18 +25,17 @@ class KrakenOHLCV(OHLCVDataSource):
         if not interval_int:
             raise ValueError('Interval must be daily, hourly or minute')
 
-        kraken = krakenex.API()
-
-        parameters = {
+        endpoint = 'https://api.kraken.com/0/public/OHLC'
+        parameters: Dict[str, Union[int, str]] = {
             'pair': self.pair,
-            'interval': interval_int,
+            'interval': interval_int
         }
         if self.since:
             parameters['since'] = self.since
 
-        kraken = krakenex.API()
-        response = kraken.query_public('OHLC', data = parameters)
-        data = response.get('result', {}).get(self.pair, {})
+        response = requests.get(endpoint, params=parameters)
+        response.raise_for_status()
+        data = response.json().get('result', {}).get(self.pair, {})
         self.data = pd.DataFrame(data, columns=self.columns)
         return self.data
 
