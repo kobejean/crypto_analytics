@@ -1,5 +1,6 @@
 import pytest
 import requests
+import re
 import pandas as pd
 from pandas.util.testing import assert_frame_equal, assert_series_equal
 
@@ -36,7 +37,8 @@ def test_k_ohlcv_fetch_not_enough_rows(requests_mock):
     requests_mock.get(endpoint, json=mock_response)
     candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 2, 1560123060)
     # when
-    with pytest.raises(ValueError, match=r'row'):
+    error_msg_regx = re.compile('row', re.IGNORECASE)
+    with pytest.raises(ValueError, match=error_msg_regx):
         data = candles.fetch()
     # then
     assert candles.data == None
@@ -48,7 +50,8 @@ def test_k_ohlcv_fetch_incomplete_candle(requests_mock):
     requests_mock.get(endpoint, json=mock_response)
     candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 2, 1560123060)
     # when
-    with pytest.raises(ValueError, match=r'candle'):
+    error_msg_regx = re.compile('candle', re.IGNORECASE)
+    with pytest.raises(ValueError, match=error_msg_regx):
         data = candles.fetch()
     # then
     assert candles.data == None
@@ -60,6 +63,19 @@ def test_k_ohlcv_fetch_connect_timeout(requests_mock):
     candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
     # when
     with pytest.raises(requests.exceptions.ConnectTimeout):
+        data = candles.fetch()
+    # then
+    assert candles.data == None
+
+def test_k_ohlcv_fetch_invalid_interval(requests_mock):
+    # given
+    mock_response = k_ohclv_success
+    endpoint = 'https://api.kraken.com/0/public/OHLC'
+    requests_mock.get(endpoint, json=mock_response)
+    candles = KrakenOHLCV('', 'XXBTZUSD', 1, 1560123060)
+    # when
+    error_msg_regx = re.compile('interval', re.IGNORECASE)
+    with pytest.raises(ValueError, match=error_msg_regx):
         data = candles.fetch()
     # then
     assert candles.data == None
@@ -124,4 +140,14 @@ def test_k_ohlcv_get_close(requests_mock):
     data = candles.get_close()
     # then
     expected_data = k_ohclv_success_df['close']
+    assert_series_equal(data, expected_data)
+
+def test_k_ohlcv_get_volume(requests_mock):
+    # given
+    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    candles.data = k_ohclv_success_df
+    # when
+    data = candles.get_volume()
+    # then
+    expected_data = k_ohclv_success_df['volume']
     assert_series_equal(data, expected_data)
