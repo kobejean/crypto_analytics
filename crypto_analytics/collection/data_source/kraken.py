@@ -1,5 +1,5 @@
 import pandas as  pd
-import json
+import time
 import requests
 from typing import Dict
 
@@ -9,9 +9,10 @@ from crypto_analytics.types import Interval
 class KrakenOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
 
-    def __init__(self, interval: Interval, pair: str, since: int = None):
+    def __init__(self, interval: Interval, pair: str, rows: int, last_time: int = None):
         self.pair = pair
-        self.since = since
+        self.rows = rows
+        self.last_time = last_time
         super().__init__(interval)
 
     def fetch(self) -> pd.DataFrame:
@@ -26,17 +27,20 @@ class KrakenOHLCV(OHLCVDataSource):
             raise ValueError('Interval must be daily, hourly or minute')
 
         endpoint = 'https://api.kraken.com/0/public/OHLC'
+
+        interval_duration = self.interval.to_unix_time()
+        last_time = time.time() if not self.last_time else last_time
+        since = (last_time//interval_duration - self.rows - 1) * interval_duration
         parameters: Dict[str, Union[int, str]] = {
             'pair': self.pair,
-            'interval': interval_int
+            'interval': interval_int,
+            'since': since,
         }
-        if self.since:
-            parameters['since'] = self.since
 
         response = requests.get(endpoint, params=parameters)
         response.raise_for_status()
-        data = response.json().get('result', {}).get(self.pair, {})
-        self.data = pd.DataFrame(data, columns=self.columns)
+
+        self.data = self.__data_frame_from_response(response)
         return self.data
 
 
@@ -60,3 +64,20 @@ class KrakenOHLCV(OHLCVDataSource):
 
     def get_volume(self):
         return self.data['volume']
+
+    def __data_frame_from_response(self, response):
+        tabular_data = response.json().get('result', {}).get(self.pair, {})
+        df = pd.DataFrame(tabular_data, columns=self.columns).head(self.rows)
+
+        self.__validate_data_frame(df, response)
+        return df
+
+    def __validate_data_frame(self, df, response):
+        last_time_valid = response.json().get('result', {}).get('last')
+        last_time = df.at[df.index[-1], 'time']
+
+        print('last_time', last_time_valid, last_time)
+        if df.shape[0] < self.rows:
+            raise ValueError('Did not recieve enough rows')
+        elif last_time > last_time_valid:
+            raise ValueError('Last candle was not completed')
