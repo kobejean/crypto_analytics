@@ -28,8 +28,8 @@ class KrakenOHLCV(OHLCVDataSource):
 
         endpoint = 'https://api.kraken.com/0/public/OHLC'
 
+        last_time = time.time() if not self.last_time else self.last_time
         interval_duration = self.interval.to_unix_time()
-        last_time = time.time() if not self.last_time else last_time
         since = (last_time//interval_duration - self.rows - 1) * interval_duration
         parameters: Dict[str, Union[int, str]] = {
             'pair': self.pair,
@@ -40,7 +40,12 @@ class KrakenOHLCV(OHLCVDataSource):
         response = requests.get(endpoint, params=parameters)
         response.raise_for_status()
 
-        self.data = self.__data_frame_from_response(response)
+        data_array = response.json().get('result', {}).get(self.pair.upper(), {})
+        data = pd.DataFrame(data_array, columns=self.columns).head(self.rows)
+
+        self.__validate_data(data, response, last_time)
+
+        self.data = data
         return self.data
 
 
@@ -65,19 +70,12 @@ class KrakenOHLCV(OHLCVDataSource):
     def get_volume(self):
         return self.data['volume']
 
-    def __data_frame_from_response(self, response):
-        tabular_data = response.json().get('result', {}).get(self.pair, {})
-        df = pd.DataFrame(tabular_data, columns=self.columns).head(self.rows)
-
-        self.__validate_data_frame(df, response)
-        return df
-
-    def __validate_data_frame(self, df, response):
+    def __validate_data(self, data: pd.DataFrame, response: requests.Response):
+        # result.last is the field that tells us the last valid timestamp
         last_time_valid = response.json().get('result', {}).get('last')
-        last_time = df.at[df.index[-1], 'time']
+        last_time_data = data.at[data.index[-1], 'time']
 
-        print('last_time', last_time_valid, last_time)
-        if df.shape[0] < self.rows:
+        if data.shape[0] < self.rows:
             raise ValueError('Did not recieve enough rows')
-        elif last_time > last_time_valid:
+        elif last_time_data > last_time_valid:
             raise ValueError('Last candle was not completed')

@@ -9,7 +9,7 @@ from crypto_analytics.types import Interval
 
 interval = Interval.MINUTE
 pair = 'XXBTZUSD'
-rows = 60
+rows = 1
 output_file = 'k_collect_data.csv'
 
 candles = KrakenOHLCV(interval, pair, rows)

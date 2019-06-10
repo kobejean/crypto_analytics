@@ -1,6 +1,7 @@
 *.pyc
 *.mypy_cache
 *.csv
+*.coverage
 __pycache__
 /*.egg-info
 /build
