@@ -42,8 +42,8 @@ class KrakenOHLCV(OHLCVDataSource):
 
         data_array = response.json().get('result', {}).get(self.pair.upper(), {})
         data = pd.DataFrame(data_array, columns=self.columns).head(self.rows)
-
-        self.__validate_data(data, response, last_time)
+        
+        self.__validate_data(data, response)
 
         self.data = data
         return self.data
@@ -52,22 +52,22 @@ class KrakenOHLCV(OHLCVDataSource):
     def write(self, filepath: str):
         self.data.to_csv(filepath)
 
-    def get_time(self):
+    def get_time(self) -> pd.Series:
         return self.data['time']
 
-    def get_open(self):
+    def get_open(self) -> pd.Series:
         return self.data['open']
 
-    def get_close(self):
+    def get_close(self) -> pd.Series:
         return self.data['close']
 
-    def get_high(self):
+    def get_high(self) -> pd.Series:
         return self.data['high']
 
-    def get_low(self):
+    def get_low(self) -> pd.Series:
         return self.data['low']
 
-    def get_volume(self):
+    def get_volume(self) -> pd.Series:
         return self.data['volume']
 
     def __validate_data(self, data: pd.DataFrame, response: requests.Response):
