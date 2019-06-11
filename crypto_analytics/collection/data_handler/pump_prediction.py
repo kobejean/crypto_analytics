@@ -13,12 +13,10 @@ class PumpPredictionDataHandler(ColumnMapper):
         merge_type = MergeType.INTERSECT
         limit = rows - 1
         interval_duration = interval.to_unix_time()
-        # calculate time at rows intervals ago
-        since = int(time.time() - rows*interval_duration)
 
         data_sources = {
             'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, fsym, tsym, limit),
-            'kraken_ohlcv': KrakenOHLCV(interval, pair, since),
+            'kraken_ohlcv': KrakenOHLCV(interval, pair, rows),
         }
         column_map = {
             'crypto_compare_ohlcv': {
