@@ -1,4 +1,5 @@
-import pandas as  pd
+import pandas as pd
+import numpy as np
 import time
 import requests
 from typing import Dict
@@ -8,6 +9,8 @@ from crypto_analytics.types import Interval
 
 class KrakenOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
+    # TODO: define appropriate dtypes
+    dtypes = {'time': np.int64, 'open': object, 'high': object, 'low': object, 'close': object, 'vwap': object, 'volume': object, 'count': np.int64 }
 
     def __init__(self, interval: Interval, pair: str, rows: int, last_time: int = None):
         self.pair = pair
@@ -41,8 +44,9 @@ class KrakenOHLCV(OHLCVDataSource):
         response.raise_for_status()
 
         data_array = response.json().get('result', {}).get(self.pair.upper(), {})
-        data = pd.DataFrame(data_array, columns=self.columns).head(self.rows)
-        
+        data = pd.DataFrame(data_array, columns=KrakenOHLCV.columns)
+        data = data.head(self.rows).astype(KrakenOHLCV.dtypes)
+
         self.__validate_data(data, response)
 
         self.data = data
@@ -50,7 +54,7 @@ class KrakenOHLCV(OHLCVDataSource):
 
 
     def write(self, filepath: str):
-        self.data.to_csv(filepath)
+        self.data.to_csv(filepath, index=False)
 
     def get_time(self) -> pd.Series:
         return self.data['time']

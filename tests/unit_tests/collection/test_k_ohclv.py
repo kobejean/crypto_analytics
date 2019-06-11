@@ -1,6 +1,5 @@
-import pytest
-import requests
-import re
+import pytest, requests, re, os
+import numpy as np
 import pandas as pd
 from pandas.util.testing import assert_frame_equal, assert_series_equal
 
@@ -9,11 +8,12 @@ from crypto_analytics.types import Interval
 
 # mock data
 
+k_ohclv_dtypes = {'time': np.int64, 'open': object, 'high': object, 'low': object, 'close': object, 'vwap': object, 'volume': object, 'count': np.int64 }
 k_ohclv_columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
 k_ohclv_success = {'error': [], 'result': {'XXBTZUSD': [[1560123060, '7633.2', '7636.2', '7633.2', '7635.6', '7635.7', '2.23099305', 6]], 'last': 1560123060}}
-k_ohclv_success_df = pd.DataFrame(k_ohclv_success['result']['XXBTZUSD'], columns=k_ohclv_columns)
+k_ohclv_success_df = pd.DataFrame(k_ohclv_success['result']['XXBTZUSD'], columns=k_ohclv_columns).astype(k_ohclv_dtypes)
 k_ohclv_incomplete_candle = {'error': [], 'result': {'XXBTZUSD': [[1560123060, '7633.2', '7636.2', '7633.2', '7635.6', '7635.7', '2.23099305', 6], [1560123120, '7635.6', '7635.6', '7630.5', '7633.1', '7630.6', '0.58258092', 2]], 'last': 1560123060}}
-k_ohclv_incomplete_candle_df = pd.DataFrame(k_ohclv_incomplete_candle['result']['XXBTZUSD'], columns=k_ohclv_columns)
+k_ohclv_incomplete_candle_df = pd.DataFrame(k_ohclv_incomplete_candle['result']['XXBTZUSD'], columns=k_ohclv_columns).astype(k_ohclv_dtypes)
 
 # fetch method tests
 
@@ -151,3 +151,17 @@ def test_k_ohlcv_get_volume(requests_mock):
     # then
     expected_data = k_ohclv_success_df['volume']
     assert_series_equal(data, expected_data)
+
+# write method tests
+
+def test_k_ohlcv_write(requests_mock, tmp_dir):
+    # given
+    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    candles.data = k_ohclv_success_df
+    filepath = os.path.join(tmp_dir, 'test_k_ohlcv_write.csv')
+    # when
+    candles.write(filepath)
+    # then
+    data = pd.read_csv(filepath, dtype=k_ohclv_dtypes)
+    expected_data = k_ohclv_success_df
+    assert_frame_equal(data, expected_data)
