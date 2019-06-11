@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import time
 import requests
-from typing import Dict
+from typing import Dict, Union
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types import Interval
