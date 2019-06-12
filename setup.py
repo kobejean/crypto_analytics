@@ -15,4 +15,9 @@ setup(name='crypto_analytics',
           'crypto_analytics.types',
           'crypto_analytics.utils',
       ],
+      install_requires=[
+          'requests>=2.20.1',
+          'pandas>=0.23.4 ',
+          'numpy>=1.16.0',
+      ],
       zip_safe=False)

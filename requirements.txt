@@ -1,0 +1,13 @@
+--index-url https://pypi.python.org/simple/
+
+# install crypto_analytics package in develop mode
+# crypto_analytics package dependencies are defined in setup.py
+-e .
+
+# dependencies required for testing but are not used in the main package
+pytest>=4.6.2
+pytest-cov>=2.7.1
+requests-mock>=1.6.0
+
+# dependencies required for building packages
+wheel>=0.31.1
