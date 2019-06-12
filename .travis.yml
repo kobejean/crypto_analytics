@@ -4,14 +4,14 @@ install: pip install -r requirements.txt
 python: 3.6
 
 jobs:
-  # allow_failures:
-  #   - name: Integration Tests # make integration tests optional
+  allow_failures:
+    - name: Integration Tests # make integration tests optional
   include:
     - name: Unit Tests
-      script: pytest tests/unit_tests/
-    # - name: Integration Tests
-    #   if: type != push # wait for PR before running integration tests
-    #   script: pytest tests/integration_tests/
+      script: pytest  --cov=crypto_analytics tests/unit_tests/
+    - name: Integration Tests
+      if: type != push # wait for pull request before running integration tests
+      script: pytest  --cov=crypto_analytics tests/integration_tests/
     #
     # - stage: Deploy
     #   if: tag IS present AND branch = master
@@ -22,8 +22,8 @@ jobs:
     #     api_key: $GITHUB_OAUTH_TOKEN
     #     file_glob: true
     #     file:
-    #       - "dist/tml-*.whl"
-    #       - "dist/tml-*.tar.gz"
+    #       - "dist/crypto_analytics-*.whl"
+    #       - "dist/crypto_analytics-*.tar.gz"
     #     skip_cleanup: true
     #     on:
     #       tags: true
