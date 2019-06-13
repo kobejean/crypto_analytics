@@ -1,0 +1,29 @@
+dist: xenial
+language: python
+install: pip install -r requirements.txt
+python: 3.6
+
+jobs:
+  allow_failures:
+    - name: Integration Tests # make integration tests optional
+  include:
+    - name: Unit Tests
+      script: pytest  --cov=crypto_analytics tests/unit_tests/
+    - name: Integration Tests
+      if: type != push # wait for pull request before running integration tests
+      script: pytest  --cov=crypto_analytics tests/integration_tests/
+    #
+    # - stage: Deploy
+    #   if: tag IS present AND branch = master
+    #   script: echo "Deploying to GitHub releases ..."
+    #   before_deploy: python3 setup.py sdist bdist_wheel
+    #   deploy:
+    #     provider: releases
+    #     api_key: $GITHUB_OAUTH_TOKEN
+    #     file_glob: true
+    #     file:
+    #       - "dist/crypto_analytics-*.whl"
+    #       - "dist/crypto_analytics-*.tar.gz"
+    #     skip_cleanup: true
+    #     on:
+    #       tags: true
