@@ -9,6 +9,7 @@ pytest>=4.6.2
 pytest-cov>=2.7.1
 pytest_mock>=1.10.4
 requests-mock>=1.6.0
+mypy>=0.701
 
 # dependencies required for building packages
 wheel>=0.31.1
