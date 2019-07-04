@@ -5,6 +5,7 @@ from pandas.util.testing import assert_frame_equal, assert_series_equal
 
 from crypto_analytics.collection.data_source import KrakenOHLCV
 from crypto_analytics.types import Interval
+from crypto_analytics.types.symbol import Symbol, SymbolPair
 
 # mock data
 
@@ -22,7 +23,8 @@ def test_k_ohlcv_fetch_success(requests_mock):
     mock_response = k_ohclv_success
     endpoint = 'https://api.kraken.com/0/public/OHLC'
     requests_mock.get(endpoint, json=mock_response)
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     # when
     data = candles.fetch()
     # then
@@ -35,7 +37,8 @@ def test_k_ohlcv_fetch_not_enough_rows(requests_mock):
     mock_response = k_ohclv_success
     endpoint = 'https://api.kraken.com/0/public/OHLC'
     requests_mock.get(endpoint, json=mock_response)
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 2, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 2, 1560123060)
     # when
     error_msg_regx = re.compile('row', re.IGNORECASE)
     with pytest.raises(ValueError, match=error_msg_regx):
@@ -48,7 +51,8 @@ def test_k_ohlcv_fetch_incomplete_candle(requests_mock):
     mock_response = k_ohclv_incomplete_candle
     endpoint = 'https://api.kraken.com/0/public/OHLC'
     requests_mock.get(endpoint, json=mock_response)
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 2, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 2, 1560123060)
     # when
     error_msg_regx = re.compile('candle', re.IGNORECASE)
     with pytest.raises(ValueError, match=error_msg_regx):
@@ -60,7 +64,8 @@ def test_k_ohlcv_fetch_connect_timeout(requests_mock):
     # given
     endpoint = 'https://api.kraken.com/0/public/OHLC'
     requests_mock.get(endpoint, exc=requests.exceptions.ConnectTimeout)
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     # when
     with pytest.raises(requests.exceptions.ConnectTimeout):
         data = candles.fetch()
@@ -72,7 +77,8 @@ def test_k_ohlcv_fetch_invalid_interval(requests_mock):
     mock_response = k_ohclv_success
     endpoint = 'https://api.kraken.com/0/public/OHLC'
     requests_mock.get(endpoint, json=mock_response)
-    candles = KrakenOHLCV('', 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV('', pair, 1, 1560123060)
     # when
     error_msg_regx = re.compile('interval', re.IGNORECASE)
     with pytest.raises(ValueError, match=error_msg_regx):
