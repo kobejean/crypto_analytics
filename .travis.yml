@@ -8,10 +8,12 @@ jobs:
     - name: Integration Tests # make integration tests optional
   include:
     - name: Unit Tests
-      script: pytest  --cov=crypto_analytics tests/unit_tests/
+      script:
+        - pytest --cov=crypto_analytics tests/unit_tests/
+        - mypy crypto_analytics
     - name: Integration Tests
       if: type != push # wait for pull request before running integration tests
-      script: pytest  --cov=crypto_analytics tests/integration_tests/
+      script: pytest --cov=crypto_analytics tests/integration_tests/
     #
     # - stage: Deploy
     #   if: tag IS present AND branch = master
