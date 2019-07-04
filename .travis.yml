@@ -7,10 +7,10 @@ jobs:
   allow_failures:
     - name: Integration Tests # make integration tests optional
   include:
+    - name: Code Linting
+      script: mypy --ignore-missing-imports crypto_analytics
     - name: Unit Tests
-      script:
-        - pytest --cov=crypto_analytics tests/unit_tests/
-        - mypy --ignore-missing-imports crypto_analytics
+      script: pytest --cov=crypto_analytics tests/unit_tests/
     - name: Integration Tests
       if: type != push # wait for pull request before running integration tests
       script: pytest --cov=crypto_analytics tests/integration_tests/
