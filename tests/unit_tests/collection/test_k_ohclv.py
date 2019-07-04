@@ -5,7 +5,8 @@ from pandas.util.testing import assert_frame_equal, assert_series_equal
 
 from crypto_analytics.collection.data_source import KrakenOHLCV
 from crypto_analytics.types import Interval
-from crypto_analytics.types.symbol import Symbol, SymbolPair
+from crypto_analytics.types.symbol import Symbol, SymbolPair, KrakenSymbolPairConverter
+
 
 # mock data
 
@@ -16,13 +17,28 @@ k_ohclv_success_df = pd.DataFrame(k_ohclv_success['result']['XXBTZUSD'], columns
 k_ohclv_incomplete_candle = {'error': [], 'result': {'XXBTZUSD': [[1560123060, '7633.2', '7636.2', '7633.2', '7635.6', '7635.7', '2.23099305', 6], [1560123120, '7635.6', '7635.6', '7630.5', '7633.1', '7630.6', '0.58258092', 2]], 'last': 1560123060}}
 k_ohclv_incomplete_candle_df = pd.DataFrame(k_ohclv_incomplete_candle['result']['XXBTZUSD'], columns=k_ohclv_columns).astype(k_ohclv_dtypes)
 
+
+# fixtures
+
+@pytest.fixture(scope='function')
+def mock_fetch(requests_mock, mocker):
+    def setup_fn(sympair, requests_mock_params):
+        # mock symbol pair conversion
+        mocker.patch.object(KrakenSymbolPairConverter, 'from_pair')
+        KrakenSymbolPairConverter.from_pair.return_value = sympair
+        # mock endpoint response
+        endpoint = 'https://api.kraken.com/0/public/OHLC'
+        requests_mock.get(endpoint, **requests_mock_params)
+
+    return setup_fn
+
+
 # fetch method tests
 
-def test_k_ohlcv_fetch_success(requests_mock):
+def test_k_ohlcv_fetch_success(mock_fetch):
     # given
-    mock_response = k_ohclv_success
-    endpoint = 'https://api.kraken.com/0/public/OHLC'
-    requests_mock.get(endpoint, json=mock_response)
+    requests_mock_params = { 'json': k_ohclv_success }
+    mock_fetch('XXBTZUSD', requests_mock_params)
     pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     # when
@@ -32,11 +48,10 @@ def test_k_ohlcv_fetch_success(requests_mock):
     expected_data = k_ohclv_success_df
     assert_frame_equal(data, expected_data)
 
-def test_k_ohlcv_fetch_not_enough_rows(requests_mock):
+def test_k_ohlcv_fetch_not_enough_rows(mock_fetch):
     # given
-    mock_response = k_ohclv_success
-    endpoint = 'https://api.kraken.com/0/public/OHLC'
-    requests_mock.get(endpoint, json=mock_response)
+    requests_mock_params = { 'json': k_ohclv_success }
+    mock_fetch('XXBTZUSD', requests_mock_params)
     pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 2, 1560123060)
     # when
@@ -46,11 +61,10 @@ def test_k_ohlcv_fetch_not_enough_rows(requests_mock):
     # then
     assert candles.data == None
 
-def test_k_ohlcv_fetch_incomplete_candle(requests_mock):
+def test_k_ohlcv_fetch_incomplete_candle(mock_fetch):
     # given
-    mock_response = k_ohclv_incomplete_candle
-    endpoint = 'https://api.kraken.com/0/public/OHLC'
-    requests_mock.get(endpoint, json=mock_response)
+    requests_mock_params = { 'json': k_ohclv_incomplete_candle }
+    mock_fetch('XXBTZUSD', requests_mock_params)
     pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 2, 1560123060)
     # when
@@ -60,10 +74,10 @@ def test_k_ohlcv_fetch_incomplete_candle(requests_mock):
     # then
     assert candles.data == None
 
-def test_k_ohlcv_fetch_connect_timeout(requests_mock):
+def test_k_ohlcv_fetch_connect_timeout(mock_fetch):
     # given
-    endpoint = 'https://api.kraken.com/0/public/OHLC'
-    requests_mock.get(endpoint, exc=requests.exceptions.ConnectTimeout)
+    requests_mock_params = { 'exc': requests.exceptions.ConnectTimeout }
+    mock_fetch('XXBTZUSD', requests_mock_params)
     pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     # when
@@ -72,11 +86,10 @@ def test_k_ohlcv_fetch_connect_timeout(requests_mock):
     # then
     assert candles.data == None
 
-def test_k_ohlcv_fetch_invalid_interval(requests_mock):
+def test_k_ohlcv_fetch_invalid_interval(mock_fetch):
     # given
-    mock_response = k_ohclv_success
-    endpoint = 'https://api.kraken.com/0/public/OHLC'
-    requests_mock.get(endpoint, json=mock_response)
+    requests_mock_params = { 'json': k_ohclv_success }
+    mock_fetch('XXBTZUSD', requests_mock_params)
     pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
     candles = KrakenOHLCV('', pair, 1, 1560123060)
     # when
@@ -86,11 +99,13 @@ def test_k_ohlcv_fetch_invalid_interval(requests_mock):
     # then
     assert candles.data == None
 
-# get * method tests
 
-def test_k_ohlcv_get_time(requests_mock):
+# getter method tests
+
+def test_k_ohlcv_get_time():
     # given
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     candles.data = k_ohclv_success_df
     # when
     data = candles.get_time()
@@ -98,9 +113,10 @@ def test_k_ohlcv_get_time(requests_mock):
     expected_data = k_ohclv_success_df['time']
     assert_series_equal(data, expected_data)
 
-def test_k_ohlcv_get_open(requests_mock):
+def test_k_ohlcv_get_open():
     # given
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     candles.data = k_ohclv_success_df
     # when
     data = candles.get_open()
@@ -108,9 +124,10 @@ def test_k_ohlcv_get_open(requests_mock):
     expected_data = k_ohclv_success_df['open']
     assert_series_equal(data, expected_data)
 
-def test_k_ohlcv_get_open(requests_mock):
+def test_k_ohlcv_get_open():
     # given
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     candles.data = k_ohclv_success_df
     # when
     data = candles.get_open()
@@ -118,9 +135,10 @@ def test_k_ohlcv_get_open(requests_mock):
     expected_data = k_ohclv_success_df['open']
     assert_series_equal(data, expected_data)
 
-def test_k_ohlcv_get_high(requests_mock):
+def test_k_ohlcv_get_high():
     # given
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     candles.data = k_ohclv_success_df
     # when
     data = candles.get_high()
@@ -128,9 +146,10 @@ def test_k_ohlcv_get_high(requests_mock):
     expected_data = k_ohclv_success_df['high']
     assert_series_equal(data, expected_data)
 
-def test_k_ohlcv_get_low(requests_mock):
+def test_k_ohlcv_get_low():
     # given
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     candles.data = k_ohclv_success_df
     # when
     data = candles.get_low()
@@ -138,9 +157,10 @@ def test_k_ohlcv_get_low(requests_mock):
     expected_data = k_ohclv_success_df['low']
     assert_series_equal(data, expected_data)
 
-def test_k_ohlcv_get_close(requests_mock):
+def test_k_ohlcv_get_close():
     # given
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     candles.data = k_ohclv_success_df
     # when
     data = candles.get_close()
@@ -148,9 +168,10 @@ def test_k_ohlcv_get_close(requests_mock):
     expected_data = k_ohclv_success_df['close']
     assert_series_equal(data, expected_data)
 
-def test_k_ohlcv_get_volume(requests_mock):
+def test_k_ohlcv_get_volume():
     # given
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     candles.data = k_ohclv_success_df
     # when
     data = candles.get_volume()
@@ -158,11 +179,13 @@ def test_k_ohlcv_get_volume(requests_mock):
     expected_data = k_ohclv_success_df['volume']
     assert_series_equal(data, expected_data)
 
+
 # write method tests
 
-def test_k_ohlcv_write(requests_mock, tmp_dir):
+def test_k_ohlcv_write(tmp_dir):
     # given
-    candles = KrakenOHLCV(Interval.MINUTE, 'XXBTZUSD', 1, 1560123060)
+    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 1, 1560123060)
     candles.data = k_ohclv_success_df
     filepath = os.path.join(tmp_dir, 'test_k_ohlcv_write.csv')
     # when

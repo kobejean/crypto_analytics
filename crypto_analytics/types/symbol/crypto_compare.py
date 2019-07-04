@@ -23,17 +23,17 @@ class CryptoCompareSymbolPairConverter(SymbolPairConverter[CryptoCompareSymbolPa
     @classmethod
     def from_pair(cls, pair: SymbolPair) -> CryptoCompareSymbolPair:
         try:
-            fsym = cls.from_symbol_map[pair.fsym]
             tsym = cls.from_symbol_map[pair.tsym]
+            fsym = cls.from_symbol_map[pair.fsym]
         except:
             raise SymbolPairConverterError(pair, cls.get_standard())
-        return CryptoCompareSymbolPair(fsym, tsym)
+        return CryptoCompareSymbolPair(tsym, fsym)
 
     @classmethod
     def to_pair(cls, converted: CryptoCompareSymbolPair) -> SymbolPair:
         try:
-            fsym = cls.to_symbol_map[converted.fsym]
             tsym = cls.to_symbol_map[converted.tsym]
+            fsym = cls.to_symbol_map[converted.fsym]
         except:
             raise SymbolPairConverterError(converted, cls.get_standard())
-        return SymbolPair(fsym, tsym)
+        return SymbolPair(tsym, fsym)

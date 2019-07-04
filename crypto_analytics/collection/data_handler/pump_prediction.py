@@ -1,4 +1,5 @@
 import time
+from typing import cast
 
 from crypto_analytics.collection.data_handler import ColumnMapper
 from crypto_analytics.collection.data_source import CryptoCompareOHLCV, KrakenOHLCV
@@ -14,10 +15,11 @@ class PumpPredictionDataHandler(ColumnMapper):
         interval = Interval.MINUTE
         merge_type = MergeType.INTERSECT
         last_time = last_time if last_time != None else get_latest_candle_time(interval)
+        last_time_int = cast(int, last_time)
 
         data_sources = {
-            'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, rows, last_time),
-            'kraken_ohlcv': KrakenOHLCV(interval, pair, rows, last_time),
+            'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, rows, last_time_int),
+            'kraken_ohlcv': KrakenOHLCV(interval, pair, rows, last_time_int),
         }
         column_map = {
             'crypto_compare_ohlcv': {
