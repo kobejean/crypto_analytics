@@ -30,12 +30,11 @@ def mock_fetch(requests_mock, mocker):
 
 # fetch method tests
 
-def test_cc_ohlcv_fetch_success(mock_fetch):
+def test_crypto_compare_ohlcv_fetch_success(mock_fetch):
     # get
-    mock_sympair = CryptoCompareSymbolPair('USD', 'BTC')
-    requests_mock_params = { 'json' : cc_ohclv_success }
-    mock_fetch(mock_sympair, requests_mock_params)
-    pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+    mock_sympair = CryptoCompareSymbolPair('BTC', 'USD')
+    mock_fetch(mock_sympair, { 'json' : cc_ohclv_success })
+    pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = CryptoCompareOHLCV(Interval.MINUTE, pair, 1, 1560042600)
     # when
     data = candles.fetch()

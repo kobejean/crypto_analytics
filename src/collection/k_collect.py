@@ -10,7 +10,7 @@ from crypto_analytics.utils.time import get_latest_candle_time
 # output_file = input('CSV file path: ')
 
 interval = Interval.MINUTE
-pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
 rows = 5
 last_time = get_latest_candle_time(interval)
 output_file = 'k_collect_data.csv'

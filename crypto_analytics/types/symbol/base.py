@@ -8,19 +8,27 @@ from enum import Enum
 
 class Symbol(Enum):
     # Fiat (ISO 4217)
+    JPY = 'JPY'
     USD = 'USD'
     # Crypto (full name in UPPER_CASE, until we have an official standard)
+    BINANCE_COIN = 'BINANCE_COIN'
     BITCOIN = 'BITCOIN'
-    LITECOIN = 'LITECOIN'
+    BITCOIN_CASH = 'BITCOIN_CASH'
+    BITCOIN_SV = 'BITCOIN_SV'
+    EOS = 'EOS'
     ETHERIUM = 'ETHERIUM'
+    LITECOIN = 'LITECOIN'
+    TETHER = 'TETHER'
+    TRON = 'TRON'
+    XRP = 'XRP'
 
 
 class SymbolStandard(Enum):
-    CryptoCompare = 'CryptoCompare'
-    Kraken = 'Kraken'
+    CRYPTO_COMPARE = 'CRYPTO_COMPARE'
+    KRAKEN = 'KRAKEN'
 
 
-SymbolPair = NamedTuple('SymbolPair', [('tsym', Symbol), ('fsym', Symbol)])
+SymbolPair = NamedTuple('SymbolPair', [('fsym', Symbol), ('tsym', Symbol)])
 
 
 # used for generic in SymbolPairConverter
@@ -39,7 +47,7 @@ class SymbolPairConverter(Generic[ConvertedType], metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def to_pair(cls, converted: ConvertedType) -> SymbolPair:
+    def to_pair(cls, value: ConvertedType) -> SymbolPair:
         pass
 
 

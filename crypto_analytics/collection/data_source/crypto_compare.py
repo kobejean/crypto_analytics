@@ -10,8 +10,8 @@ from crypto_analytics.types.symbol import SymbolPair, CryptoCompareSymbolPairCon
 class CryptoCompareOHLCV(OHLCVDataSource):
     endpoints = {
         Interval.MINUTE: 'data/histominute',
-        Interval.HOURLY: 'data/histohour',
-        Interval.DAILY: 'data/histoday',
+        Interval.HOUR: 'data/histohour',
+        Interval.DAY: 'data/histoday',
     }
 
     def __init__(self, interval: Interval, pair: SymbolPair, rows: int, last_time: int):

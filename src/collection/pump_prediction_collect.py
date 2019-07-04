@@ -11,7 +11,7 @@ from crypto_analytics.utils.time import get_latest_candle_time
 # rows = int(input('Rows: '))
 # output_file = input('CSV file path: ')
 
-pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
+pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
 rows = 120
 output_file = 'pump_prediction_data.csv'
 

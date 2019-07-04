@@ -21,8 +21,8 @@ class KrakenOHLCV(OHLCVDataSource):
     def fetch(self) -> pd.DataFrame:
         interval_ints = {
             Interval.MINUTE: 1,
-            Interval.HOURLY: 60,
-            Interval.DAILY: 60*24,
+            Interval.HOUR: 60,
+            Interval.DAY: 60*24,
         }
         interval_int = interval_ints.get(self.interval)
 

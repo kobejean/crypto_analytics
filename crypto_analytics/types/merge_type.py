@@ -3,8 +3,8 @@ from enum import Enum
 
 class MergeType(Enum):
     """ An enum of merge types """
-    INTERSECT = 'intersect'
-    UNION = 'union'
+    INTERSECT = 'INTERSECT'
+    UNION = 'UNION'
 
     def to_merge_how(self):
         """ Converts merge type to a `how` parameter for using `pd.merge` """

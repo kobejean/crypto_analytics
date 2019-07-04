@@ -2,15 +2,15 @@
 from enum import Enum
 
 class Interval(Enum):
-    MINUTE = 'minute'
-    HOURLY = 'hourly'
-    DAILY = 'daily'
+    MINUTE = 'MINUTE'
+    HOUR = 'HOUR'
+    DAY = 'DAY'
 
     def to_unix_time(self):
         if self == Interval.MINUTE:
             return 60
-        elif self == Interval.HOURLY:
+        elif self == Interval.HOUR:
             return 60*60
-        elif self == Interval.DAILY:
+        elif self == Interval.DAY:
             return 60*60*24
         return None
