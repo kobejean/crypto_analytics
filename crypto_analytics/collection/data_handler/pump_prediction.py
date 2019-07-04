@@ -4,6 +4,7 @@ from crypto_analytics.collection.data_handler import ColumnMapper
 from crypto_analytics.collection.data_source import CryptoCompareOHLCV, KrakenOHLCV
 from crypto_analytics.types import Interval, MergeType
 from crypto_analytics.types.symbol import SymbolPair
+from crypto_analytics.utils.time import get_latest_candle_time
 
 class PumpPredictionDataHandler(ColumnMapper):
     """ A data handler used to transdorm data for pump prediction models """
@@ -12,7 +13,7 @@ class PumpPredictionDataHandler(ColumnMapper):
         """ Creates the PumpPredictionDataHandler data handler object """
         interval = Interval.MINUTE
         merge_type = MergeType.INTERSECT
-        interval_duration = interval.to_unix_time()
+        last_time = last_time if last_time != None else get_latest_candle_time(interval)
 
         data_sources = {
             'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, rows, last_time),

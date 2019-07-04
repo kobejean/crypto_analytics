@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import time
 import requests
 from typing import Dict, Union
 
@@ -13,7 +12,7 @@ class KrakenOHLCV(OHLCVDataSource):
     # TODO: define appropriate dtypes
     dtypes = {'time': np.int64, 'open': object, 'high': object, 'low': object, 'close': object, 'vwap': object, 'volume': object, 'count': np.int64 }
 
-    def __init__(self, interval: Interval, pair: SymbolPair, rows: int, last_time: int = None):
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: int, last_time: int):
         self.pair = pair
         self.rows = rows
         self.last_time = last_time
@@ -33,9 +32,8 @@ class KrakenOHLCV(OHLCVDataSource):
         endpoint = 'https://api.kraken.com/0/public/OHLC'
 
         converted_pair = KrakenSymbolPairConverter.from_pair(self.pair)
-        last_time = time.time() if not self.last_time else self.last_time
         interval_duration = self.interval.to_unix_time()
-        since = (last_time//interval_duration - self.rows - 1) * interval_duration
+        since = self.last_time - self.rows * interval_duration
         parameters: Dict[str, Union[int, str]] = {
             'pair': converted_pair,
             'interval': interval_int,

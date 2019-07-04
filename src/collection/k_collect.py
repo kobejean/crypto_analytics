@@ -2,6 +2,7 @@
 from crypto_analytics.collection.data_source import KrakenOHLCV
 from crypto_analytics.types import Interval
 from crypto_analytics.types.symbol import Symbol, SymbolPair
+from crypto_analytics.utils.time import get_latest_candle_time
 
 # interval = Interval(input('Interval: '))
 # pair = input('Pair: ')
@@ -11,9 +12,10 @@ from crypto_analytics.types.symbol import Symbol, SymbolPair
 interval = Interval.MINUTE
 pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
 rows = 5
+last_time = get_latest_candle_time(interval)
 output_file = 'k_collect_data.csv'
 
-candles = KrakenOHLCV(interval, pair, rows)
+candles = KrakenOHLCV(interval, pair, rows, last_time)
 candles.fetch()
 print(candles.data)
 print('time:', candles.get_time().head(), sep='\n')

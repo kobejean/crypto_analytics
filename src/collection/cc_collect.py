@@ -2,6 +2,7 @@
 from crypto_analytics.collection.data_source import CryptoCompareOHLCV
 from crypto_analytics.types import Interval
 from crypto_analytics.types.symbol import Symbol, SymbolPair
+from crypto_analytics.utils.time import get_latest_candle_time
 
 # interval = Interval(input('Interval: '))
 # fsym = input('Symbols: ')
@@ -12,9 +13,10 @@ from crypto_analytics.types.symbol import Symbol, SymbolPair
 interval = Interval.MINUTE
 pair = SymbolPair(Symbol.USD, Symbol.BITCOIN)
 rows = 60
+last_time = get_latest_candle_time(interval)
 output_file = 'cc_collect_data.csv'
 
-candles = CryptoCompareOHLCV(interval, pair, rows)
+candles = CryptoCompareOHLCV(interval, pair, rows, last_time)
 candles.fetch()
 print(candles.data)
 print('time:', candles.get_time().head(), sep='\n')

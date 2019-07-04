@@ -1,5 +1,4 @@
 import pandas as pd
-import time
 import json
 import requests
 from typing import Dict, Union
@@ -15,7 +14,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         Interval.DAILY: 'data/histoday',
     }
 
-    def __init__(self, interval: Interval, pair: SymbolPair, rows: int, last_time: int = None):
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: int, last_time: int):
         self.__prevalidate(interval, pair, rows)
 
         self.interval = interval
@@ -31,14 +30,12 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         converted_pair = CryptoCompareSymbolPairConverter.from_pair(self.pair)
         limit = self.rows - 1
         interval_duration = self.interval.to_unix_time()
-        last_time = time.time() if not self.last_time else self.last_time
-        last_time = int((last_time//interval_duration - 1) * interval_duration)
 
         parameters: Dict[str, Union[int, str]] = {
             'fsym': converted_pair.fsym,
             'tsym': converted_pair.tsym,
             'limit': limit,
-            'toTs': last_time
+            'toTs': self.last_time
         }
         response = requests.get(url, params=parameters)
         response.raise_for_status()
