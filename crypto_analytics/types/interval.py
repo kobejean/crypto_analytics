@@ -6,11 +6,10 @@ class Interval(Enum):
     HOUR = 'HOUR'
     DAY = 'DAY'
 
-    def to_unix_time(self):
-        if self == Interval.MINUTE:
-            return 60
-        elif self == Interval.HOUR:
-            return 60*60
-        elif self == Interval.DAY:
-            return 60*60*24
-        return None
+    def to_unix_time(self) -> int:
+        switch = {
+            Interval.MINUTE: 60,
+            Interval.HOUR: 60*60,
+            Interval.DAY: 60*60*24,
+        }
+        return switch[self]
