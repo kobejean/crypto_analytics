@@ -1,4 +1,4 @@
-import pytest
+import pytest, time
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
@@ -17,10 +17,13 @@ cc_ohclv_success_df = pd.DataFrame(cc_ohclv_success['Data'])
 
 @pytest.fixture(scope='function')
 def mock_fetch(requests_mock, mocker):
-    def setup_fn(sympair, requests_mock_params):
+    def setup_fn(sympair, candle_time, requests_mock_params):
         # mock symbol pair conversion
         mocker.patch.object(CryptoCompareSymbolPairConverter, 'from_pair')
         CryptoCompareSymbolPairConverter.from_pair.return_value = sympair
+        # mock time function
+        mocker.patch.object(time, 'time')
+        time.time.return_value = candle_time
         # mock endpoint response
         endpoint = 'https://min-api.cryptocompare.com/data/histominute'
         requests_mock.get(endpoint, **requests_mock_params)
@@ -33,9 +36,10 @@ def mock_fetch(requests_mock, mocker):
 def test_crypto_compare_ohlcv_fetch_success(mock_fetch):
     # get
     mock_sympair = CryptoCompareSymbolPair('BTC', 'USD')
-    mock_fetch(mock_sympair, { 'json' : cc_ohclv_success })
+    candle_time = 1560042663.56
+    mock_fetch(mock_sympair, candle_time, { 'json' : cc_ohclv_success })
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
-    candles = CryptoCompareOHLCV(Interval.MINUTE, pair, 1, 1560042600)
+    candles = CryptoCompareOHLCV(Interval.MINUTE, pair, 1)
     # when
     data = candles.fetch()
     # then

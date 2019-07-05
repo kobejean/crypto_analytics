@@ -5,20 +5,19 @@ from crypto_analytics.collection.data_handler import ColumnMapper
 from crypto_analytics.collection.data_source import CryptoCompareOHLCV, KrakenOHLCV
 from crypto_analytics.types import Interval, MergeType
 from crypto_analytics.types.symbol import SymbolPair
-from crypto_analytics.utils.typing import RealNumber
 from crypto_analytics import utils
 
 class PumpPredictionDataHandler(ColumnMapper):
     """ A data handler used to transdorm data for pump prediction models """
 
-    def __init__(self, pair: SymbolPair, rows: int, to_time: Optional[RealNumber] = None):
+    def __init__(self, pair: SymbolPair, rows: int):
         """ Creates the PumpPredictionDataHandler data handler object """
         interval = Interval.MINUTE
         merge_type = MergeType.INTERSECT
 
         data_sources = {
-            'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, rows, to_time),
-            'kraken_ohlcv': KrakenOHLCV(interval, pair, rows, to_time),
+            'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, rows),
+            'kraken_ohlcv': KrakenOHLCV(interval, pair, rows),
         }
         column_map = {
             'crypto_compare_ohlcv': {

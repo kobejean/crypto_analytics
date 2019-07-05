@@ -1,9 +1,10 @@
 import pandas as pd
 from abc import ABC, abstractmethod
-from typing import Mapping
+from typing import Mapping, Optional, cast
 
-from crypto_analytics.collection.data_source import DataSource
+from crypto_analytics.collection.data_source import DataSource, TimeSeriesDataSource
 from crypto_analytics.types import Interval, MergeType
+from crypto_analytics.utils.typing import RealNumber
 
 class DataHandler(ABC):
     """ An abstract base class for all data handlers """
@@ -36,6 +37,7 @@ class ColumnMapper(DataHandler):
         """ Creates the ColumnMapper data handler object """
         self.column_map = column_map
         self.merge_type = merge_type
+        self.to_time: Optional[RealNumber] = None
         super().__init__(data_sources)
 
     def fetch(self) -> pd.DataFrame:
@@ -61,9 +63,14 @@ class ColumnMapper(DataHandler):
         self.data = tmp_data
         return self.data
 
-
     def write(self, filepath: str):
         """ Writes the currently stored data to a file """
         if self.data is None:
             raise Exception('No data to write')
         self.data.to_csv(filepath)
+
+    def set_to_time(self, to_time: Optional[RealNumber]):
+        for data_source in self.data_sources.values():
+            if isinstance(data_source, TimeSeriesDataSource):
+                data_source.to_time = to_time
+        self.to_time = to_time

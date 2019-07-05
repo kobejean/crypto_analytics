@@ -6,19 +6,12 @@ from typing import Dict, Union, Optional
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types import Interval
 from crypto_analytics.types.symbol import SymbolPair, KrakenSymbolPairConverter
-from crypto_analytics.utils.typing import RealNumber
 from crypto_analytics import utils
 
 class KrakenOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
     # TODO: define appropriate dtypes
     dtypes = {'time': np.int64, 'open': object, 'high': object, 'low': object, 'close': object, 'vwap': object, 'volume': object, 'count': np.int64 }
-
-    def __init__(self, interval: Interval, pair: SymbolPair, rows: int, to_time: Optional[RealNumber] = None):
-        self.pair = pair
-        self.rows = rows
-        self.to_time = to_time
-        super().__init__(interval)
 
     def fetch(self) -> pd.DataFrame:
         interval_ints = {
