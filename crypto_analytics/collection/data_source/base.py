@@ -2,7 +2,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from crypto_analytics.types  import Interval
+from crypto_analytics.types import Interval
 from crypto_analytics.types.symbol import SymbolPair
 from crypto_analytics.utils.typing import RealNumber
 from crypto_analytics import utils

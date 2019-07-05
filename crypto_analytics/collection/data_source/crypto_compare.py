@@ -1,10 +1,11 @@
-import json, requests, time, math
+import requests, time, math
 import pandas as pd
-from typing import Dict, Union, Optional
+from typing import Dict, Union
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types  import Interval
 from crypto_analytics.types.symbol import SymbolPair, CryptoCompareSymbolPairConverter
+from crypto_analytics.utils.typing import coalesce
 from crypto_analytics import utils
 
 class CryptoCompareOHLCV(OHLCVDataSource):
@@ -19,7 +20,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         url = 'https://min-api.cryptocompare.com/{}'.format(endpoint)
 
         converted_pair = CryptoCompareSymbolPairConverter.from_pair(self.pair)
-        toTs = math.floor(time.time()) if self.to_time is None else int(self.to_time)
+        toTs = math.floor(coalesce(self.to_time, lambda: time.time()))
 
         parameters: Dict[str, Union[int, str]] = {
             'fsym': converted_pair.fsym,

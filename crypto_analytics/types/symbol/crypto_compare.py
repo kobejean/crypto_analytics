@@ -1,7 +1,6 @@
-from typing import NamedTuple, Any, TypeVar, Generic
+from typing import NamedTuple
 
-from .base import (SymbolStandard, Symbol, SymbolPair, SymbolPairConverter,
-    SymbolPairConverterError)
+from .base import SymbolStandard, Symbol, SymbolPair, SymbolPairConverter, SymbolPairConverterError
 
 CryptoCompareSymbolPair = NamedTuple('CryptoCompareSymbolPair', [('fsym', str), ('tsym', str)])
 

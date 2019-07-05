@@ -1,11 +1,7 @@
-import time
-from typing import Optional
-
 from crypto_analytics.collection.data_handler import ColumnMapper
 from crypto_analytics.collection.data_source import CryptoCompareOHLCV, KrakenOHLCV
 from crypto_analytics.types import Interval, MergeType
 from crypto_analytics.types.symbol import SymbolPair
-from crypto_analytics import utils
 
 class PumpPredictionDataHandler(ColumnMapper):
     """ A data handler used to transdorm data for pump prediction models """

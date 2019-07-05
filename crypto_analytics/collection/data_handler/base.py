@@ -1,9 +1,9 @@
 import pandas as pd
 from abc import ABC, abstractmethod
-from typing import Mapping, Optional, cast
+from typing import Mapping, Optional
 
 from crypto_analytics.collection.data_source import DataSource, TimeSeriesDataSource
-from crypto_analytics.types import Interval, MergeType
+from crypto_analytics.types import MergeType
 from crypto_analytics.utils.typing import RealNumber
 
 class DataHandler(ABC):
