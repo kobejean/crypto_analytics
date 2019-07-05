@@ -1,11 +1,11 @@
+import json, requests, time
 import pandas as pd
-import json
-import requests
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types  import Interval
 from crypto_analytics.types.symbol import SymbolPair, CryptoCompareSymbolPairConverter
+from crypto_analytics.utils.typing import RealNumber
 from crypto_analytics import utils
 
 class CryptoCompareOHLCV(OHLCVDataSource):
@@ -15,13 +15,13 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         Interval.DAY: 'data/histoday',
     }
 
-    def __init__(self, interval: Interval, pair: SymbolPair, rows: int, last_time: int):
-        self.__prevalidate(interval, pair, rows, last_time)
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: int, to_time: Optional[RealNumber] = None):
+        self.__prevalidate(interval, pair, rows, to_time)
 
         self.interval = interval
         self.pair = pair
         self.rows = rows
-        self.last_time = last_time
+        self.to_time = to_time
         super().__init__(interval)
 
     def fetch(self) -> pd.DataFrame:
@@ -29,14 +29,12 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         url = 'https://min-api.cryptocompare.com/{}'.format(endpoint)
 
         converted_pair = CryptoCompareSymbolPairConverter.from_pair(self.pair)
-        limit = self.rows - 1
-        interval_duration = self.interval.to_unix_time()
 
         parameters: Dict[str, Union[int, str]] = {
             'fsym': converted_pair.fsym,
             'tsym': converted_pair.tsym,
-            'limit': limit,
-            'toTs': self.last_time
+            'limit': self.rows,
+            'toTs': self.to_time
         }
         response = requests.get(url, params=parameters)
         response.raise_for_status()
@@ -68,7 +66,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
 
     # private methods
 
-    def __prevalidate(self, interval: Interval, pair: SymbolPair, rows: int, last_time: int):
+    def __prevalidate(self, interval: Interval, pair: SymbolPair, rows: int, to_time: Optional[RealNumber] = None):
         # validate interval
         if interval is None:
             raise ValueError('Interval must be specified')
@@ -81,7 +79,5 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         if rows is None:
             raise ValueError('The number of rows must be specified')
         # validate last_time
-        if last_time is None:
-            raise ValueError('The last_time parameter must be specified')
-        if last_time > utils.time.candle_time(interval):
-            raise ValueError('last_time must be less than or equal to the time of the last closed candle')
+        if to_time is not None and to_time > time.time():
+            raise ValueError('to_time cannot be greater than current time')
