@@ -6,7 +6,7 @@ from typing import Dict, Union
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types  import Interval
 from crypto_analytics.types.symbol import SymbolPair, CryptoCompareSymbolPairConverter
-from crypto_analytics.utils.time import get_latest_candle_time
+from crypto_analytics import utils
 
 class CryptoCompareOHLCV(OHLCVDataSource):
     endpoints = {
@@ -83,5 +83,5 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         # validate last_time
         if last_time is None:
             raise ValueError('The last_time parameter must be specified')
-        if last_time > get_latest_candle_time(interval):
+        if last_time > utils.time.candle_time(interval):
             raise ValueError('last_time must be less than or equal to the time of the last closed candle')
