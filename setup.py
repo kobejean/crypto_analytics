@@ -13,6 +13,7 @@ setup(name='crypto_analytics',
           'crypto_analytics.collection.data_handler',
           'crypto_analytics.collection.data_source',
           'crypto_analytics.types',
+          'crypto_analytics.types.symbol',
           'crypto_analytics.utils',
       ],
       install_requires=[

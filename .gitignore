@@ -2,6 +2,7 @@
 *.mypy_cache
 *.csv
 *.coverage
+*.DS_Store
 __pycache__
 /*.egg-info
 /build

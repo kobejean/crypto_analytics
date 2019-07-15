@@ -1,6 +1,11 @@
 import pandas as pd
 from abc import ABC, abstractmethod
-from crypto_analytics.types  import Interval
+from typing import Optional
+
+from crypto_analytics.types import Interval
+from crypto_analytics.types.symbol import SymbolPair
+from crypto_analytics.utils.typing import RealNumber
+from crypto_analytics import utils
 
 class DataSource(ABC):
     """ An abstract base class for all data sources """
@@ -23,11 +28,23 @@ class DataSource(ABC):
         pass
 
 
-class OHLCDataSource(DataSource):
-    """ An abstract class for all OHLC data sources """
-    def __init__(self, interval: Interval):
+class TimeSeriesDataSource(DataSource):
+    """ An abstract class for all time series data sources """
+    def __init__(self, interval: Interval, rows: int):
         self.interval = interval
+        self.rows = rows
+        self.to_time: Optional[RealNumber] = None
         super().__init__()
+
+    def set_to_time(self, to_time: Optional[RealNumber]):
+        self.to_time = to_time
+
+
+class OHLCDataSource(TimeSeriesDataSource):
+    """ An abstract class for all OHLC data sources """
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: int):
+        self.pair = pair
+        super().__init__(interval, rows)
 
     @abstractmethod
     def get_open(self):

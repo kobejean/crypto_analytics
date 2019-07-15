@@ -6,7 +6,7 @@ Python tools for analyzing crypto currency data
 **mypy**
 
 ```shell
-mypy  --ignore-missing-imports crypto_analytics
+mypy --ignore-missing-imports crypto_analytics
 ```
 
 

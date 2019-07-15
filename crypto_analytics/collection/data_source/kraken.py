@@ -1,28 +1,23 @@
 import pandas as pd
 import numpy as np
-import time
 import requests
 from typing import Dict, Union
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types import Interval
+from crypto_analytics.types.symbol import SymbolPair, KrakenSymbolPairConverter
+from crypto_analytics import utils
 
 class KrakenOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
     # TODO: define appropriate dtypes
     dtypes = {'time': np.int64, 'open': object, 'high': object, 'low': object, 'close': object, 'vwap': object, 'volume': object, 'count': np.int64 }
 
-    def __init__(self, interval: Interval, pair: str, rows: int, last_time: int = None):
-        self.pair = pair
-        self.rows = rows
-        self.last_time = last_time
-        super().__init__(interval)
-
     def fetch(self) -> pd.DataFrame:
         interval_ints = {
             Interval.MINUTE: 1,
-            Interval.HOURLY: 60,
-            Interval.DAILY: 60*24,
+            Interval.HOUR: 60,
+            Interval.DAY: 60*24,
         }
         interval_int = interval_ints.get(self.interval)
 
@@ -31,11 +26,12 @@ class KrakenOHLCV(OHLCVDataSource):
 
         endpoint = 'https://api.kraken.com/0/public/OHLC'
 
-        last_time = time.time() if not self.last_time else self.last_time
+        converted_pair = KrakenSymbolPairConverter.from_pair(self.pair)
         interval_duration = self.interval.to_unix_time()
-        since = (last_time//interval_duration - self.rows - 1) * interval_duration
+        candle_time = utils.time.candle_time(self.interval, self.to_time)
+        since = candle_time - self.rows * interval_duration
         parameters: Dict[str, Union[int, str]] = {
-            'pair': self.pair,
+            'pair': converted_pair,
             'interval': interval_int,
             'since': since,
         }
@@ -43,7 +39,7 @@ class KrakenOHLCV(OHLCVDataSource):
         response = requests.get(endpoint, params=parameters)
         response.raise_for_status()
 
-        data_array = response.json().get('result', {}).get(self.pair.upper(), {})
+        data_array = response.json().get('result', {}).get(converted_pair, {})
         data = pd.DataFrame(data_array, columns=KrakenOHLCV.columns)
         data = data.head(self.rows).astype(KrakenOHLCV.dtypes)
 

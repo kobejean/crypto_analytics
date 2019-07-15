@@ -1,21 +1,18 @@
-import time
-
 from crypto_analytics.collection.data_handler import ColumnMapper
 from crypto_analytics.collection.data_source import CryptoCompareOHLCV, KrakenOHLCV
 from crypto_analytics.types import Interval, MergeType
+from crypto_analytics.types.symbol import SymbolPair
 
 class PumpPredictionDataHandler(ColumnMapper):
     """ A data handler used to transdorm data for pump prediction models """
 
-    def __init__(self, pair: str, fsym: str, tsym: str, rows: int):
+    def __init__(self, pair: SymbolPair, rows: int):
         """ Creates the PumpPredictionDataHandler data handler object """
         interval = Interval.MINUTE
         merge_type = MergeType.INTERSECT
-        limit = rows - 1
-        interval_duration = interval.to_unix_time()
 
         data_sources = {
-            'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, fsym, tsym, limit),
+            'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, rows),
             'kraken_ohlcv': KrakenOHLCV(interval, pair, rows),
         }
         column_map = {
