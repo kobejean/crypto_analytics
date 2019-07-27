@@ -26,23 +26,49 @@ class CollectionController(Controller):
             # pop queue task
             fetch_time, data_source_name = heapq.heappop(self.queue)
             data_source = self.data_sources[data_source_name]
+
             # find time remaining and wait
-            time_remaining = max(fetch_time - time.time(), 0)
-            print('Time remaining until fetch {0}: {1:.0f}s'.format(data_source_name, time_remaining))
-            time.sleep(time_remaining)
+            print(_format_queue(self.queue))
+            print('Time remaining until fetch {0}:'.format(data_source_name))
+            _countdown(fetch_time)
 
             # fetch data
             data_source.fetch()
 
-            if data_source.validate():
+            try:
+                # validate data
+                data_source.validate()
                 # write to file
                 start_time = data_source.time[0]
                 start_date = datetime.utcfromtimestamp(start_time).strftime('%Y_%m_%d')
                 filename = '{0}_{1}.csv'.format(data_source_name, start_date)
                 data_source.write(filename)
+            except Exception as e:
+                print(e)
 
-                # schedule and push new task to queue
-                fetch_period = data_source.interval.to_unix_time() * data_source.rows
-                next_fetch_time = fetch_time + fetch_period
-                data_source.set_to_time(next_fetch_time)
-                heapq.heappush(self.queue, (next_fetch_time, data_source_name))
+            # schedule and push new task to queue
+            fetch_period = data_source.interval.to_unix_time() * data_source.rows
+            next_fetch_time = fetch_time + fetch_period
+            data_source.to_time = next_fetch_time
+            heapq.heappush(self.queue, (next_fetch_time, data_source_name))
+
+def _countdown(to_time):
+    time_remaining = max(to_time - time.time(), 0)
+    while time_remaining > 0:
+        time_formated = _format_time_remaining(time_remaining)
+        print('T:', time_formated, end='\r')
+        time.sleep(1)
+        time_remaining = max(to_time - time.time(), 0)
+    print('Time reached')
+
+def _format_time_remaining(time_remaining) -> str:
+    hrs, rem_hr = divmod(time_remaining, 3600)
+    mins, secs = divmod(rem_hr, 60)
+    return '{:.0f}:{:02.0f}:{:02.0f}'.format(hrs, mins, secs)
+
+def _format_queue(queue) -> str:
+    string = 'Queue: ['
+    for fetch_time, name in queue:
+        time_formated = datetime.utcfromtimestamp(fetch_time).strftime('%m/%d/%Y, %H:%M:%S')
+        string += '\n(time: "' + time_formated + '" data_source: "' + name + '"),'
+    return string + '\n]'

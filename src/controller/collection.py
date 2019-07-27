@@ -14,10 +14,8 @@ pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
 interval = Interval.MINUTE
 
 data_sources = {
-    #'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, 2000),
-    #'kraken_ohlcv': KrakenOHLCV(interval, pair, 719),
-    'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, 2),
-    'kraken_ohlcv': KrakenOHLCV(interval, pair, 1),
+    'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, 2000),
+    'kraken_ohlcv': KrakenOHLCV(interval, pair, 719),
 }
 
 collection_controller = CollectionController(pair, data_sources)
