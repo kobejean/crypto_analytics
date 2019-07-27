@@ -28,7 +28,7 @@ class KrakenOHLCV(OHLCVDataSource):
 
         converted_pair = KrakenSymbolPairConverter.from_pair(self.pair)
         interval_duration = self.interval.to_unix_time()
-        candle_time = utils.time.candle_time(self.interval, self.to_time)
+        candle_time = utils.time.candle_time(self.interval, self.get_to_time())
         since = candle_time - self.rows * interval_duration
         parameters: Dict[str, Union[int, str]] = {
             'pair': converted_pair,
@@ -47,10 +47,6 @@ class KrakenOHLCV(OHLCVDataSource):
 
         self.data = data
         return self.data
-
-
-    def write(self, filepath: str):
-        self.data.to_csv(filepath, index=False)
 
     def get_time(self) -> pd.Series:
         return self.data['time']

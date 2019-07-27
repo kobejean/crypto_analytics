@@ -1,10 +1,11 @@
+import time, os
 import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Optional
 
 from crypto_analytics.types import Interval
 from crypto_analytics.types.symbol import SymbolPair
-from crypto_analytics.utils.typing import RealNumber
+from crypto_analytics.utils.typing import RealNumber, coalesce
 from crypto_analytics import utils
 
 class DataSource(ABC):
@@ -18,10 +19,11 @@ class DataSource(ABC):
     def fetch(self) -> pd.DataFrame:
         pass
 
-    # TODO: Depricate and let data_handler write files
-    @abstractmethod
     def write(self, filepath: str):
-        pass
+        if os.path.isfile('/path/to/file'):
+            self.data.to_csv(filepath, index=False, mode='a', header=False)
+        else:
+            self.data.to_csv(filepath, index=False)
 
     @abstractmethod
     def get_time(self):
@@ -33,11 +35,14 @@ class TimeSeriesDataSource(DataSource):
     def __init__(self, interval: Interval, rows: int):
         self.interval = interval
         self.rows = rows
-        self.to_time: Optional[RealNumber] = None
+        self.__to_time: Optional[RealNumber] = None
         super().__init__()
 
     def set_to_time(self, to_time: Optional[RealNumber]):
-        self.to_time = to_time
+        self.__to_time = to_time
+
+    def get_to_time(self) -> RealNumber:
+        return coalesce(self.__to_time, lambda: time.time())
 
 
 class OHLCDataSource(TimeSeriesDataSource):

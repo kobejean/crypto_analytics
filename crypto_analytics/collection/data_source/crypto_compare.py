@@ -5,7 +5,6 @@ from typing import Dict, Union
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types  import Interval
 from crypto_analytics.types.symbol import SymbolPair, CryptoCompareSymbolPairConverter
-from crypto_analytics.utils.typing import coalesce
 from crypto_analytics import utils
 
 class CryptoCompareOHLCV(OHLCVDataSource):
@@ -20,7 +19,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         url = 'https://min-api.cryptocompare.com/{}'.format(endpoint)
 
         converted_pair = CryptoCompareSymbolPairConverter.from_pair(self.pair)
-        toTs = math.floor(coalesce(self.to_time, lambda: time.time()))
+        toTs = math.floor(self.get_to_time())
 
         parameters: Dict[str, Union[int, str]] = {
             'fsym': converted_pair.fsym,
@@ -32,11 +31,8 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         response.raise_for_status()
 
         data = response.json()
-        self.data = pd.DataFrame(data['Data'])
+        self.data = pd.DataFrame(data['Data']).head(self.rows)
         return self.data
-
-    def write(self, filepath: str):
-        self.data.to_csv(filepath)
 
     def get_time(self):
         return self.data['time']

@@ -37,7 +37,7 @@ class ColumnMapper(DataHandler):
         """ Creates the ColumnMapper data handler object """
         self.column_map = column_map
         self.merge_type = merge_type
-        self.to_time: Optional[RealNumber] = None
+        self.__to_time: Optional[RealNumber] = None
         super().__init__(data_sources)
 
     def fetch(self) -> pd.DataFrame:
@@ -72,5 +72,8 @@ class ColumnMapper(DataHandler):
     def set_to_time(self, to_time: Optional[RealNumber]):
         for data_source in self.data_sources.values():
             if isinstance(data_source, TimeSeriesDataSource):
-                data_source.to_time = to_time
-        self.to_time = to_time
+                data_source.set_to_time(to_time)
+        self.__to_time = to_time
+
+    def get_to_time(self) -> RealNumber:
+        return coalesce(self.__to_time, lambda: time.time())
