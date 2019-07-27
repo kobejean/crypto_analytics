@@ -20,7 +20,8 @@ class DataSource(ABC):
         pass
 
     def write(self, filepath: str):
-        if os.path.isfile('/path/to/file'):
+        if os.path.isfile(filepath):
+            # concat current data if writing to an existing file
             self.data.to_csv(filepath, index=False, mode='a', header=False)
         else:
             self.data.to_csv(filepath, index=False)

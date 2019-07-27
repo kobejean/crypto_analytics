@@ -1,10 +1,11 @@
+import time
 import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Mapping, Optional
 
 from crypto_analytics.collection.data_source import DataSource, TimeSeriesDataSource
 from crypto_analytics.types import MergeType
-from crypto_analytics.utils.typing import RealNumber
+from crypto_analytics.utils.typing import RealNumber, coalesce
 
 class DataHandler(ABC):
     """ An abstract base class for all data handlers """

@@ -12,7 +12,6 @@ from crypto_analytics.utils.typing import RealNumber
 
 pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
 interval = Interval.MINUTE
-merge_type = MergeType.INTERSECT
 
 data_sources = {
     #'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, 2000),
