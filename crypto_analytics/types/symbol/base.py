@@ -34,11 +34,7 @@ SymbolPair = NamedTuple('SymbolPair', [('fsym', Symbol), ('tsym', Symbol)])
 # used for generic in SymbolPairConverter
 ConvertedType = TypeVar('ConvertedType')
 class SymbolPairConverter(Generic[ConvertedType], metaclass=ABCMeta):
-
-    @classmethod
-    @abstractmethod
-    def get_standard(cls) -> SymbolStandard:
-        pass
+    standard: SymbolStandard
 
     @classmethod
     @abstractmethod

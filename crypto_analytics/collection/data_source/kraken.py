@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import requests
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types import Interval
@@ -12,6 +12,10 @@ class KrakenOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
     # TODO: define appropriate dtypes
     dtypes = {'time': np.int64, 'open': object, 'high': object, 'low': object, 'close': object, 'vwap': object, 'volume': object, 'count': np.int64 }
+
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: int):
+        super().__init__(interval, pair, rows)
+        self._last_valid_time: Optional[int] = None
 
     def fetch(self) -> pd.DataFrame:
         interval_ints = {
@@ -28,7 +32,7 @@ class KrakenOHLCV(OHLCVDataSource):
 
         converted_pair = KrakenSymbolPairConverter.from_pair(self.pair)
         interval_duration = self.interval.to_unix_time()
-        candle_time = utils.time.candle_time(self.interval, self.get_to_time())
+        candle_time = utils.time.candle_time(self.interval, self.to_time)
         since = candle_time - self.rows * interval_duration
         parameters: Dict[str, Union[int, str]] = {
             'pair': converted_pair,
@@ -43,35 +47,39 @@ class KrakenOHLCV(OHLCVDataSource):
         data = pd.DataFrame(data_array, columns=KrakenOHLCV.columns)
         data = data.head(self.rows).astype(KrakenOHLCV.dtypes)
 
-        self.__validate_data(data, response)
+        self._last_valid_time = int(response.json().get('result', {}).get('last'))
+        self._data = data
 
-        self.data = data
+        self.validate()
         return self.data
 
-    def get_time(self) -> pd.Series:
-        return self.data['time']
+    @property
+    def time(self) -> pd.Series:
+        return self._data['time']
 
-    def get_open(self) -> pd.Series:
-        return self.data['open']
+    @property
+    def open(self) -> pd.Series:
+        return self._data['open']
 
-    def get_close(self) -> pd.Series:
-        return self.data['close']
+    @property
+    def close(self) -> pd.Series:
+        return self._data['close']
 
-    def get_high(self) -> pd.Series:
-        return self.data['high']
+    @property
+    def high(self) -> pd.Series:
+        return self._data['high']
 
-    def get_low(self) -> pd.Series:
-        return self.data['low']
+    @property
+    def low(self) -> pd.Series:
+        return self._data['low']
 
-    def get_volume(self) -> pd.Series:
-        return self.data['volume']
+    @property
+    def volume(self) -> pd.Series:
+        return self._data['volume']
 
-    def __validate_data(self, data: pd.DataFrame, response: requests.Response):
-        # result.last is the field that tells us the last valid timestamp
-        last_time_valid = response.json().get('result', {}).get('last')
-        last_time_data = data.at[data.index[-1], 'time']
+    def validate(self):
+        super().validate()
+        last_time_data = self._data.at[self.data.index[-1], 'time']
 
-        if data.shape[0] < self.rows:
-            raise ValueError('Did not recieve enough rows')
-        elif last_time_data > last_time_valid:
+        if last_time_data > self._last_valid_time:
             raise ValueError('Last candle was not completed')

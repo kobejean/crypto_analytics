@@ -19,7 +19,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         url = 'https://min-api.cryptocompare.com/{}'.format(endpoint)
 
         converted_pair = CryptoCompareSymbolPairConverter.from_pair(self.pair)
-        toTs = math.floor(self.get_to_time())
+        toTs = math.floor(self.to_time)
 
         parameters: Dict[str, Union[int, str]] = {
             'fsym': converted_pair.fsym,
@@ -31,23 +31,29 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         response.raise_for_status()
 
         data = response.json()
-        self.data = pd.DataFrame(data['Data']).head(self.rows)
+        self._data = pd.DataFrame(data['Data']).head(self.rows)
         return self.data
 
-    def get_time(self):
+    @property
+    def time(self):
         return self.data['time']
 
-    def get_open(self):
+    @property
+    def open(self):
         return self.data['open']
 
-    def get_close(self):
+    @property
+    def close(self):
         return self.data['close']
 
-    def get_high(self):
+    @property
+    def high(self):
         return self.data['high']
 
-    def get_low(self):
+    @property
+    def low(self):
         return self.data['low']
 
-    def get_volume(self):
+    @property
+    def volume(self):
         return self.data['volumefrom']

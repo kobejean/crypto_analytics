@@ -3,13 +3,13 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Mapping, Optional
 
-from crypto_analytics.collection.data_source import DataSource, TimeSeriesDataSource
+from crypto_analytics.collection.data_source import TimeSeriesDataSource
 from crypto_analytics.types import MergeType
 from crypto_analytics.utils.typing import RealNumber, coalesce
 
 class DataHandler(ABC):
     """ An abstract base class for all data handlers """
-    DataSourcesType = Mapping[str, DataSource]
+    DataSourcesType = Mapping[str, TimeSeriesDataSource]
 
     def __init__(self, data_sources: DataSourcesType):
         """ Creates the data handler object """
@@ -38,7 +38,7 @@ class ColumnMapper(DataHandler):
         """ Creates the ColumnMapper data handler object """
         self.column_map = column_map
         self.merge_type = merge_type
-        self.__to_time: Optional[RealNumber] = None
+        self._to_time: Optional[RealNumber] = None
         super().__init__(data_sources)
 
     def fetch(self) -> pd.DataFrame:
@@ -53,7 +53,7 @@ class ColumnMapper(DataHandler):
             # rename columns
             columns = self.column_map.get(name, {})
             current_data.rename(columns=columns, inplace=True)
-            current_data['time'] = data_source.get_time()
+            current_data['time'] = data_source.time
             # merge data
             if not tmp_data is None:
                 tmp_data = pd.merge(tmp_data, current_data, how=merge_how,
@@ -70,11 +70,13 @@ class ColumnMapper(DataHandler):
             raise Exception('No data to write')
         self.data.to_csv(filepath)
 
-    def set_to_time(self, to_time: Optional[RealNumber]):
+    @property
+    def to_time(self) -> RealNumber:
+        return coalesce(self._to_time, lambda: time.time())
+
+    @to_time.setter
+    def to_time(self, to_time: RealNumber):
         for data_source in self.data_sources.values():
             if isinstance(data_source, TimeSeriesDataSource):
-                data_source.set_to_time(to_time)
-        self.__to_time = to_time
-
-    def get_to_time(self) -> RealNumber:
-        return coalesce(self.__to_time, lambda: time.time())
+                data_source.to_time = to_time
+        self._to_time = to_time

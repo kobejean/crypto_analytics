@@ -35,16 +35,12 @@ class CoinMarketCap(DataSource):
                                                                     response.reason))
 
             data = response.json()
-            self.data = pd.DataFrame(data['data'])
+            self._data = pd.DataFrame(data['data'])
             return self.data
         except (ConnectionError, Timeout, TooManyRedirects) as e:
             print(e)
-            self.data = pd.DataFrame()
+            self._data = None
             return self.data
 
     def write(self, filepath: str):
-        self.data.to_csv(filepath)
-
-    # TODO: needs implementation
-    def get_time(self):
-        return None
+        self._data.to_csv(filepath)
