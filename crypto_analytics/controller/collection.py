@@ -13,26 +13,35 @@ class CollectionController(Controller):
     """ A controller to collect data from data sources """
     DataSourcesType = Mapping[str, TimeSeriesDataSource]
 
-    def __init__(self, pair: SymbolPair, data_sources: DataSourcesType):
+    def __init__(self, pair: SymbolPair, data_sources: DataSourcesType, redundancy: int = 1):
         """ Creates the CollectionController collection object """
-        queue = [(ds.to_time, name) for name, ds in data_sources.items()]
+        queue = []
+        for copy_id in range(redundancy):
+            for name, data_source in data_sources.items():
+                redundancy_spacing = copy_id * (data_source.fetch_period / redundancy)
+                fetch_time = data_source.to_time + redundancy_spacing
+
+                queue.append((fetch_time, copy_id, name))
+
         heapq.heapify(queue)
 
+        self.redundancy = redundancy
         self.data_sources = data_sources
         self.queue = queue
 
     def run(self):
         while len(self.queue) > 0:
+            print(_format_queue(self.queue))
             # pop queue task
-            fetch_time, data_source_name = heapq.heappop(self.queue)
-            data_source = self.data_sources[data_source_name]
+            fetch_time, copy_id, source_name = heapq.heappop(self.queue)
+            data_source = self.data_sources[source_name]
 
             # find time remaining and wait
-            print(_format_queue(self.queue))
-            print('Time remaining until fetch {0}:'.format(data_source_name))
+            print('Time remaining until fetch {0}:'.format(source_name))
             _countdown(fetch_time)
 
             # fetch data
+            data_source.to_time = fetch_time
             data_source.fetch()
 
             try:
@@ -41,16 +50,14 @@ class CollectionController(Controller):
                 # write to file
                 start_time = data_source.time[0]
                 start_date = datetime.utcfromtimestamp(start_time).strftime('%Y_%m_%d')
-                filename = '{0}_{1}.csv'.format(data_source_name, start_date)
+                filename = '{}_{}_{}.csv'.format(source_name, copy_id, start_date)
                 data_source.write(filename)
             except Exception as e:
                 print(e)
 
             # schedule and push new task to queue
-            fetch_period = data_source.interval.to_unix_time() * data_source.rows
-            next_fetch_time = fetch_time + fetch_period
-            data_source.to_time = next_fetch_time
-            heapq.heappush(self.queue, (next_fetch_time, data_source_name))
+            next_fetch_time = fetch_time + data_source.fetch_period
+            heapq.heappush(self.queue, (next_fetch_time, copy_id, source_name))
 
 def _countdown(to_time):
     time_remaining = max(to_time - time.time(), 0)
@@ -67,8 +74,8 @@ def _format_time_remaining(time_remaining) -> str:
     return '{:.0f}:{:02.0f}:{:02.0f}'.format(hrs, mins, secs)
 
 def _format_queue(queue) -> str:
-    string = 'Queue: ['
-    for fetch_time, name in queue:
+    string = 'Priority Queue: ['
+    for fetch_time, copy_id, source_name in queue:
         time_formated = datetime.utcfromtimestamp(fetch_time).strftime('%m/%d/%Y, %H:%M:%S')
-        string += '\n(time: "' + time_formated + '" data_source: "' + name + '"),'
+        string += '\ntime: "{}" copy_id: {} source_name: "{}"'.format(time_formated, copy_id, source_name)
     return string + '\n]'

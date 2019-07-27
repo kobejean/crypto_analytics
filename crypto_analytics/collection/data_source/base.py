@@ -64,6 +64,10 @@ class TimeSeriesDataSource(DataSource):
     def to_time(self, to_time: RealNumber):
         self._to_time = to_time
 
+    @property
+    def fetch_period(self) -> RealNumber:
+        return self._interval.to_unix_time() * self.rows
+
     def validate(self):
         super().validate()
         # check row count of data
