@@ -15,10 +15,8 @@ interval = Interval.MINUTE
 redundancy = 3
 
 data_sources = {
-    # 'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, 2000),
-    # 'kraken_ohlcv': KrakenOHLCV(interval, pair, 719),
-    'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, 5),
-    'kraken_ohlcv': KrakenOHLCV(interval, pair, 3),
+    'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, 2000),
+    'kraken_ohlcv': KrakenOHLCV(interval, pair, 719),
 }
 
 collection_controller = CollectionController(pair, data_sources, redundancy)

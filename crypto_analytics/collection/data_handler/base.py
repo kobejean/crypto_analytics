@@ -36,8 +36,8 @@ class ColumnMapper(DataHandler):
                  column_map: ColumnMapType = {},
                  merge_type: MergeType = MergeType.INTERSECT):
         """ Creates the ColumnMapper data handler object """
-        self.column_map = column_map
-        self.merge_type = merge_type
+        self._column_map = column_map
+        self._merge_type = merge_type
         self._to_time: Optional[RealNumber] = None
         super().__init__(data_sources)
 
@@ -69,6 +69,14 @@ class ColumnMapper(DataHandler):
         if self.data is None:
             raise Exception('No data to write')
         self.data.to_csv(filepath)
+
+    @property
+    def column_map(self) -> ColumnMapType:
+        return self._column_map
+
+    @property
+    def merge_type(self) -> MergeType:
+        return self._merge_type
 
     @property
     def to_time(self) -> RealNumber:
