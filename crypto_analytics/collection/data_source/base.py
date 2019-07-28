@@ -1,10 +1,10 @@
 import time, os
 import pandas as pd
+from datetime import datetime
 from abc import ABC, abstractmethod, abstractproperty
 from typing import Optional
 
-from crypto_analytics.types import Interval
-from crypto_analytics.types.symbol import SymbolPair
+from crypto_analytics.types import Interval, SymbolPair
 from crypto_analytics.utils.typing import RealNumber, coalesce, unwrap
 from crypto_analytics import utils
 
@@ -31,6 +31,9 @@ class DataSource(ABC):
         else:
             data.to_csv(filepath, index=False)
 
+    def prevalidate(self):
+        pass
+
     def validate(self):
         # check existance of data
         if self.data is None:
@@ -43,9 +46,12 @@ class DataSource(ABC):
 
 class TimeSeriesDataSource(DataSource):
     """ An abstract class for all time series data sources """
-    def __init__(self, interval: Interval, rows: int):
+    max_rows: int
+    default_rows: int
+
+    def __init__(self, interval: Interval, rows: Optional[int] = None):
         self._interval = interval
-        self._rows = rows
+        self._rows = coalesce(rows, type(self).max_rows)
         self._to_time: Optional[RealNumber] = None
         super().__init__()
 
@@ -69,11 +75,26 @@ class TimeSeriesDataSource(DataSource):
     def fetch_period(self) -> RealNumber:
         return self.interval.to_unix_time() * self.rows
 
+    def prevalidate(self):
+        super().prevalidate()
+        # check if rows does not excede max rows
+        if self.rows > type(self).max_rows:
+            raise ValueError('The number of rows for {} cannot excede {}'.format(type(self).__name__, type(self).max_rows))
+
     def validate(self):
         super().validate()
+        # check for gaps in data
+        gaps = self.time.loc[self.time.diff() != self.interval.to_unix_time()]
+        gaps = gaps.drop(gaps.head(1).index)
+        if len(gaps.index) > 0:
+            message = '{} is missing rows at indices: {}'.format(self, gaps.index.values)
+            # utils.console.warning(message)
+            raise ValueError(message)
         # check row count of data
         if len(self.data.index) != self.rows:
-            ValueError('Did not recieve the expected number of rows')
+            message = '{} did not recieve the expected number of rows. Expected {} but got {}'.format(self, self.rows, len(self.data.index))
+            # utils.console.warning(message)
+            raise ValueError(message)
 
     @abstractproperty
     def time(self) -> pd.Series:
@@ -82,7 +103,7 @@ class TimeSeriesDataSource(DataSource):
 
 class OHLCDataSource(TimeSeriesDataSource):
     """ An abstract class for all OHLC data sources """
-    def __init__(self, interval: Interval, pair: SymbolPair, rows: int):
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: Optional[int] = None):
         self.pair = pair
         super().__init__(interval, rows)
 

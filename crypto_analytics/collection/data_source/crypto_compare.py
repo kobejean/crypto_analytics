@@ -8,6 +8,7 @@ from crypto_analytics.types.symbol import SymbolPair, CryptoCompareSymbolPairCon
 from crypto_analytics import utils
 
 class CryptoCompareOHLCV(OHLCVDataSource):
+    max_rows = 2000
     endpoints = {
         Interval.MINUTE: 'data/histominute',
         Interval.HOUR: 'data/histohour',
@@ -15,6 +16,8 @@ class CryptoCompareOHLCV(OHLCVDataSource):
     }
 
     def fetch(self) -> pd.DataFrame:
+        self.prevalidate()
+        
         endpoint = type(self).endpoints.get(self.interval)
         url = 'https://min-api.cryptocompare.com/{}'.format(endpoint)
 
@@ -32,6 +35,8 @@ class CryptoCompareOHLCV(OHLCVDataSource):
 
         data = response.json()
         self._data = pd.DataFrame(data['Data']).head(self.rows)
+
+        self.validate()
         return self.data
 
     @property

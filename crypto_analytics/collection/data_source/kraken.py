@@ -10,43 +10,50 @@ from crypto_analytics import utils
 from crypto_analytics.utils.typing import unwrap
 
 class KrakenOHLCV(OHLCVDataSource):
+    max_rows = 719
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
     # TODO: define appropriate dtypes
     dtypes = {'time': np.int64, 'open': object, 'high': object, 'low': object, 'close': object, 'vwap': object, 'volume': object, 'count': np.int64 }
+    interval_values = {
+        Interval.MINUTE: 1,
+        Interval.HOUR: 60,
+        Interval.DAY: 60*24,
+    }
 
-    def __init__(self, interval: Interval, pair: SymbolPair, rows: int):
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: Optional[int] = None):
         super().__init__(interval, pair, rows)
         self._last_valid_time: Optional[int] = None
+        self._interval_value = type(self).interval_values.get(self.interval)
+        self._converted_pair = KrakenSymbolPairConverter.from_pair(self.pair)
 
     def fetch(self) -> pd.DataFrame:
-        interval_ints = {
-            Interval.MINUTE: 1,
-            Interval.HOUR: 60,
-            Interval.DAY: 60*24,
-        }
-        interval_int = interval_ints.get(self.interval)
+        self.prevalidate()
 
-        if not interval_int:
-            raise ValueError('Interval must be daily, hourly or minute')
-
+        # configure endpoint and parameters
         endpoint = 'https://api.kraken.com/0/public/OHLC'
-
-        converted_pair = KrakenSymbolPairConverter.from_pair(self.pair)
         interval_duration = self.interval.to_unix_time()
         candle_time = utils.time.candle_time(self.interval, self.to_time)
         since = candle_time - self.rows * interval_duration
         parameters: Dict[str, Union[int, str]] = {
-            'pair': converted_pair,
-            'interval': interval_int,
+            'pair': self._converted_pair,
+            'interval': unwrap(self._interval_value),
             'since': since,
         }
 
+        # fetch response
         response = requests.get(endpoint, params=parameters)
         response.raise_for_status()
 
-        data_array = response.json().get('result', {}).get(converted_pair, {})
+        # parse response
+        response_json = response.json()
+        last_valid_time = int(response_json.get('result', {}).get('last'))
+        data_array = response_json.get('result', {}).get(self._converted_pair, {})
         data = pd.DataFrame(data_array, columns=KrakenOHLCV.columns)
-        data = data.head(self.rows).astype(KrakenOHLCV.dtypes)
+        if data.at[data.index[-1], 'time'] > last_valid_time:
+            # remove last candle if its not complete
+            data = data.drop(data.tail(1).index)
+        data = data.head(self.rows)
+        data = data.astype(KrakenOHLCV.dtypes)
 
         self._last_valid_time = int(response.json().get('result', {}).get('last'))
         self._data = data
@@ -77,6 +84,14 @@ class KrakenOHLCV(OHLCVDataSource):
     @property
     def volume(self) -> pd.Series:
         return cast(pd.DataFrame, self.data)['volume']
+
+    def prevalidate(self):
+        super().prevalidate()
+        # check if interval is allowed/not set
+        if self._interval_value is None:
+            allowed_intervals = list(type(self).interval_values.keys())
+            message = 'The interval for {} is not valid. The interval must be one of the following: {} but is currently: {}'.format(self, allowed_intervals, self.interval)
+            raise ValueError(message)
 
     def validate(self):
         super().validate()
