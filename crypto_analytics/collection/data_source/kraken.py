@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
 import requests
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Optional, cast
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types import Interval
 from crypto_analytics.types.symbol import SymbolPair, KrakenSymbolPairConverter
 from crypto_analytics import utils
+from crypto_analytics.utils.typing import unwrap
 
 class KrakenOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
@@ -55,31 +56,32 @@ class KrakenOHLCV(OHLCVDataSource):
 
     @property
     def time(self) -> pd.Series:
-        return self._data['time']
+        return cast(pd.DataFrame, self.data)['time']
 
     @property
     def open(self) -> pd.Series:
-        return self._data['open']
+        return cast(pd.DataFrame, self.data)['open']
 
     @property
     def close(self) -> pd.Series:
-        return self._data['close']
+        return cast(pd.DataFrame, self.data)['close']
 
     @property
     def high(self) -> pd.Series:
-        return self._data['high']
+        return cast(pd.DataFrame, self.data)['high']
 
     @property
     def low(self) -> pd.Series:
-        return self._data['low']
+        return cast(pd.DataFrame, self.data)['low']
 
     @property
     def volume(self) -> pd.Series:
-        return self._data['volume']
+        return cast(pd.DataFrame, self.data)['volume']
 
     def validate(self):
         super().validate()
-        last_time_data = self._data.at[self.data.index[-1], 'time']
+        data: pd.DataSource = unwrap(self.data)
+        last_time_data = data.at[data.index[-1], 'time']
 
         if last_time_data > self._last_valid_time:
             raise ValueError('Last candle was not completed')

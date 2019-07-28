@@ -1,6 +1,6 @@
 import requests, time, math
 import pandas as pd
-from typing import Dict, Union
+from typing import Dict, Union, Optional, cast
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types  import Interval
@@ -35,25 +35,25 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         return self.data
 
     @property
-    def time(self):
-        return self.data['time']
+    def time(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['time']
 
     @property
-    def open(self):
-        return self.data['open']
+    def open(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['open']
 
     @property
-    def close(self):
-        return self.data['close']
+    def close(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['close']
 
     @property
-    def high(self):
-        return self.data['high']
+    def high(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['high']
 
     @property
-    def low(self):
-        return self.data['low']
+    def low(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['low']
 
     @property
-    def volume(self):
-        return self.data['volumefrom']
+    def volume(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['volumefrom']

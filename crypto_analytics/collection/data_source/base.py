@@ -5,7 +5,7 @@ from typing import Optional
 
 from crypto_analytics.types import Interval
 from crypto_analytics.types.symbol import SymbolPair
-from crypto_analytics.utils.typing import RealNumber, coalesce
+from crypto_analytics.utils.typing import RealNumber, coalesce, unwrap
 from crypto_analytics import utils
 
 class DataSource(ABC):
@@ -24,11 +24,12 @@ class DataSource(ABC):
         pass
 
     def write(self, filepath: str):
+        data: pd.DataFrame = unwrap(self.data)
         if os.path.isfile(filepath):
             # concat current data if writing to an existing file
-            self._data.to_csv(filepath, index=False, mode='a', header=False)
+            data.to_csv(filepath, index=False, mode='a', header=False)
         else:
-            self._data.to_csv(filepath, index=False)
+            data.to_csv(filepath, index=False)
 
     def validate(self):
         # check existance of data
@@ -66,7 +67,7 @@ class TimeSeriesDataSource(DataSource):
 
     @property
     def fetch_period(self) -> RealNumber:
-        return self._interval.to_unix_time() * self.rows
+        return self.interval.to_unix_time() * self.rows
 
     def validate(self):
         super().validate()
@@ -75,7 +76,7 @@ class TimeSeriesDataSource(DataSource):
             ValueError('Did not recieve the expected number of rows')
 
     @abstractproperty
-    def time(self):
+    def time(self) -> pd.Series:
         pass
 
 
@@ -86,19 +87,19 @@ class OHLCDataSource(TimeSeriesDataSource):
         super().__init__(interval, rows)
 
     @abstractproperty
-    def open(self):
+    def open(self) -> pd.Series:
         pass
 
     @abstractproperty
-    def close(self):
+    def close(self) -> pd.Series:
         pass
 
     @abstractproperty
-    def high(self):
+    def high(self) -> pd.Series:
         pass
 
     @abstractproperty
-    def low(self):
+    def low(self) -> pd.Series:
         pass
 
 
@@ -106,5 +107,5 @@ class OHLCVDataSource(OHLCDataSource):
     """ An abstract class for all OHLCV data sources """
 
     @abstractproperty
-    def volume(self):
+    def volume(self) -> Optional[pd.Series]:
         pass

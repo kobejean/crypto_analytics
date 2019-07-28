@@ -13,12 +13,20 @@ class DataHandler(ABC):
 
     def __init__(self, data_sources: DataSourcesType):
         """ Creates the data handler object """
-        self.data = None
-        self.data_sources = data_sources
+        self._data = None
+        self._data_sources = data_sources
         super().__init__()
 
+    @property
+    def data(self) -> Optional[pd.DataFrame]:
+        return self._data
+
+    @property
+    def data_sources(self) -> DataSourcesType:
+        return self._data_sources
+
     @abstractmethod
-    def fetch(self) -> pd.DataFrame:
+    def fetch(self) -> Optional[pd.DataFrame]:
         """ Fetches the data from all data sources and returns the data """
         pass
 
@@ -61,7 +69,7 @@ class ColumnMapper(DataHandler):
             else:
                 tmp_data = current_data
 
-        self.data = tmp_data
+        self._data = tmp_data
         return self.data
 
     def write(self, filepath: str):
