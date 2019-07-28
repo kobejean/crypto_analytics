@@ -1,14 +1,14 @@
 import requests, time, math
 import pandas as pd
-from typing import Dict, Union
+from typing import Dict, Union, Optional, cast
 
 from crypto_analytics.collection.data_source import OHLCVDataSource
 from crypto_analytics.types  import Interval
 from crypto_analytics.types.symbol import SymbolPair, CryptoCompareSymbolPairConverter
-from crypto_analytics.utils.typing import coalesce
 from crypto_analytics import utils
 
 class CryptoCompareOHLCV(OHLCVDataSource):
+    max_rows = 2000
     endpoints = {
         Interval.MINUTE: 'data/histominute',
         Interval.HOUR: 'data/histohour',
@@ -16,11 +16,13 @@ class CryptoCompareOHLCV(OHLCVDataSource):
     }
 
     def fetch(self) -> pd.DataFrame:
+        self.prevalidate()
+        
         endpoint = type(self).endpoints.get(self.interval)
         url = 'https://min-api.cryptocompare.com/{}'.format(endpoint)
 
         converted_pair = CryptoCompareSymbolPairConverter.from_pair(self.pair)
-        toTs = math.floor(coalesce(self.to_time, lambda: time.time()))
+        toTs = math.floor(self.to_time)
 
         parameters: Dict[str, Union[int, str]] = {
             'fsym': converted_pair.fsym,
@@ -32,26 +34,31 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         response.raise_for_status()
 
         data = response.json()
-        self.data = pd.DataFrame(data['Data'])
+        self._data = pd.DataFrame(data['Data']).head(self.rows)
+
+        self.validate()
         return self.data
 
-    def write(self, filepath: str):
-        self.data.to_csv(filepath)
+    @property
+    def time(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['time']
 
-    def get_time(self):
-        return self.data['time']
+    @property
+    def open(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['open']
 
-    def get_open(self):
-        return self.data['open']
+    @property
+    def close(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['close']
 
-    def get_close(self):
-        return self.data['close']
+    @property
+    def high(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['high']
 
-    def get_high(self):
-        return self.data['high']
+    @property
+    def low(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['low']
 
-    def get_low(self):
-        return self.data['low']
-
-    def get_volume(self):
-        return self.data['volumefrom']
+    @property
+    def volume(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['volumefrom']

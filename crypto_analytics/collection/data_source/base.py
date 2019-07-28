@@ -1,71 +1,131 @@
+import time, os
 import pandas as pd
-from abc import ABC, abstractmethod
+from datetime import datetime
+from abc import ABC, abstractmethod, abstractproperty
 from typing import Optional
 
-from crypto_analytics.types import Interval
-from crypto_analytics.types.symbol import SymbolPair
-from crypto_analytics.utils.typing import RealNumber
+from crypto_analytics.types import Interval, SymbolPair
+from crypto_analytics.utils.typing import RealNumber, coalesce, unwrap
 from crypto_analytics import utils
 
 class DataSource(ABC):
     """ An abstract base class for all data sources """
 
     def __init__(self):
-        self.data = None
+        self._data = None
         super().__init__()
+
+    @property
+    def data(self) -> Optional[pd.DataFrame]:
+        return self._data
 
     @abstractmethod
     def fetch(self) -> pd.DataFrame:
         pass
 
-    # TODO: Depricate and let data_handler write files
-    @abstractmethod
     def write(self, filepath: str):
+        data: pd.DataFrame = unwrap(self.data)
+        if os.path.isfile(filepath):
+            # concat current data if writing to an existing file
+            data.to_csv(filepath, index=False, mode='a', header=False)
+        else:
+            data.to_csv(filepath, index=False)
+
+    def prevalidate(self):
         pass
 
-    @abstractmethod
-    def get_time(self):
-        pass
+    def validate(self):
+        # check existance of data
+        if self.data is None:
+            raise ValueError('No data')
+        # check type of data
+        if not isinstance(self.data, pd.DataFrame):
+            raise ValueError('The data is not an instance of the pandas DataFrame type')
+
 
 
 class TimeSeriesDataSource(DataSource):
     """ An abstract class for all time series data sources """
-    def __init__(self, interval: Interval, rows: int):
-        self.interval = interval
-        self.rows = rows
-        self.to_time: Optional[RealNumber] = None
+    max_rows: int
+
+    def __init__(self, interval: Interval, rows: Optional[int] = None):
+        self._interval = interval
+        self._rows = coalesce(rows, type(self).max_rows)
+        self._to_time: Optional[RealNumber] = None
         super().__init__()
 
-    def set_to_time(self, to_time: Optional[RealNumber]):
-        self.to_time = to_time
+    @property
+    def interval(self) -> Interval:
+        return self._interval
+
+    @property
+    def rows(self) -> int:
+        return self._rows
+
+    @property
+    def to_time(self) -> RealNumber:
+        return coalesce(self._to_time, lambda: time.time())
+
+    @to_time.setter
+    def to_time(self, to_time: RealNumber):
+        self._to_time = to_time
+
+    @property
+    def fetch_period(self) -> RealNumber:
+        return self.interval.to_unix_time() * self.rows
+
+    def prevalidate(self):
+        super().prevalidate()
+        # check if rows does not excede max rows
+        if self.rows > type(self).max_rows:
+            raise ValueError('The number of rows for {} cannot excede {}'.format(type(self).__name__, type(self).max_rows))
+
+    def validate(self):
+        super().validate()
+        # check for gaps in data
+        gaps = self.time.loc[self.time.diff() != self.interval.to_unix_time()]
+        gaps = gaps.drop(gaps.head(1).index)
+        if len(gaps.index) > 0:
+            message = '{} is missing rows at indices: {}'.format(self, gaps.index.values)
+            # utils.console.warning(message)
+            raise ValueError(message)
+        # check row count of data
+        if len(self.data.index) != self.rows:
+            message = '{} did not recieve the expected number of rows. Expected {} but got {}'.format(self, self.rows, len(self.data.index))
+            # utils.console.warning(message)
+            raise ValueError(message)
+
+    @abstractproperty
+    def time(self) -> pd.Series:
+        pass
 
 
 class OHLCDataSource(TimeSeriesDataSource):
     """ An abstract class for all OHLC data sources """
-    def __init__(self, interval: Interval, pair: SymbolPair, rows: int):
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: Optional[int] = None):
         self.pair = pair
         super().__init__(interval, rows)
 
-    @abstractmethod
-    def get_open(self):
+    @abstractproperty
+    def open(self) -> pd.Series:
         pass
 
-    @abstractmethod
-    def get_close(self):
+    @abstractproperty
+    def close(self) -> pd.Series:
         pass
 
-    @abstractmethod
-    def get_high(self):
+    @abstractproperty
+    def high(self) -> pd.Series:
         pass
 
-    @abstractmethod
-    def get_low(self):
+    @abstractproperty
+    def low(self) -> pd.Series:
         pass
 
 
 class OHLCVDataSource(OHLCDataSource):
     """ An abstract class for all OHLCV data sources """
 
-    @abstractmethod
-    def get_volume(self):
+    @abstractproperty
+    def volume(self) -> Optional[pd.Series]:
         pass

@@ -1,1 +1,1 @@
-__all__ = ['collection', 'types', 'utils']
+__all__ = ['collection', 'controller', 'types', 'utils']

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from pandas.util.testing import assert_frame_equal, assert_series_equal
 
-from crypto_analytics.collection.data_source import KrakenOHLCV
+from crypto_analytics.collection.data_source import OHLCVDataSource, KrakenOHLCV
 from crypto_analytics.types import Interval
 from crypto_analytics.types.symbol import Symbol, SymbolPair, KrakenSymbolPairConverter
 from crypto_analytics import utils
@@ -33,8 +33,15 @@ def mock_fetch(requests_mock, mocker):
         # mock endpoint response
         endpoint = 'https://api.kraken.com/0/public/OHLC'
         requests_mock.get(endpoint, **requests_mock_params)
+        # mock validate method
+        mocker.patch.object(KrakenOHLCV, 'validate')
 
     return setup_fn
+
+@pytest.fixture(scope='function')
+def mock_validate(mocker):
+    # mock super validate
+    mocker.patch.object(OHLCVDataSource, 'validate')
 
 
 # fetch method tests
@@ -50,32 +57,6 @@ def test_kraken_ohlcv_fetch_success(mock_fetch):
     # then
     expected = k_ohclv_success_df
     assert_frame_equal(data, expected)
-
-def test_kraken_ohlcv_fetch_not_enough_rows(mock_fetch):
-    # given
-    candle_time = 1560123060
-    mock_fetch('XXBTZUSD', candle_time, { 'json': k_ohclv_success })
-    pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
-    candles = KrakenOHLCV(Interval.MINUTE, pair, 2)
-    # when/then
-    error_msg_regx = re.compile('row', re.IGNORECASE)
-    with pytest.raises(ValueError, match=error_msg_regx):
-        data = candles.fetch()
-    # then
-    assert candles.data == None
-
-def test_kraken_ohlcv_fetch_incomplete_candle(mock_fetch):
-    # given
-    candle_time = 1560123060
-    mock_fetch('XXBTZUSD', candle_time, { 'json': k_ohclv_incomplete_candle })
-    pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
-    candles = KrakenOHLCV(Interval.MINUTE, pair, 2)
-    # when/then
-    error_msg_regx = re.compile('candle', re.IGNORECASE)
-    with pytest.raises(ValueError, match=error_msg_regx):
-        data = candles.fetch()
-    # then
-    assert candles.data == None
 
 def test_kraken_ohlcv_fetch_connect_timeout(mock_fetch):
     # given
@@ -110,9 +91,9 @@ def test_kraken_ohlcv_get_time():
     # given
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1)
-    candles.data = k_ohclv_success_df
+    candles._data = k_ohclv_success_df
     # when
-    data = candles.get_time()
+    data = candles.time
     # then
     expected = k_ohclv_success_df['time']
     assert_series_equal(data, expected)
@@ -121,9 +102,9 @@ def test_kraken_ohlcv_get_open():
     # given
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1)
-    candles.data = k_ohclv_success_df
+    candles._data = k_ohclv_success_df
     # when
-    data = candles.get_open()
+    data = candles.open
     # then
     expected = k_ohclv_success_df['open']
     assert_series_equal(data, expected)
@@ -132,9 +113,9 @@ def test_kraken_ohlcv_get_high():
     # given
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1)
-    candles.data = k_ohclv_success_df
+    candles._data = k_ohclv_success_df
     # when
-    data = candles.get_high()
+    data = candles.high
     # then
     expected = k_ohclv_success_df['high']
     assert_series_equal(data, expected)
@@ -143,9 +124,9 @@ def test_kraken_ohlcv_get_low():
     # given
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1)
-    candles.data = k_ohclv_success_df
+    candles._data = k_ohclv_success_df
     # when
-    data = candles.get_low()
+    data = candles.low
     # then
     expected = k_ohclv_success_df['low']
     assert_series_equal(data, expected)
@@ -154,9 +135,9 @@ def test_kraken_ohlcv_get_close():
     # given
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1)
-    candles.data = k_ohclv_success_df
+    candles._data = k_ohclv_success_df
     # when
-    data = candles.get_close()
+    data = candles.close
     # then
     expected = k_ohclv_success_df['close']
     assert_series_equal(data, expected)
@@ -165,9 +146,9 @@ def test_kraken_ohlcv_get_volume():
     # given
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1)
-    candles.data = k_ohclv_success_df
+    candles._data = k_ohclv_success_df
     # when
-    data = candles.get_volume()
+    data = candles.volume
     # then
     expected = k_ohclv_success_df['volume']
     assert_series_equal(data, expected)
@@ -179,7 +160,7 @@ def test_kraken_ohlcv_write(tmp_dir):
     # given
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = KrakenOHLCV(Interval.MINUTE, pair, 1)
-    candles.data = k_ohclv_success_df
+    candles._data = k_ohclv_success_df
     filepath = os.path.join(tmp_dir, 'test_k_ohlcv_write.csv')
     # when
     candles.write(filepath)
@@ -187,3 +168,17 @@ def test_kraken_ohlcv_write(tmp_dir):
     data = pd.read_csv(filepath, dtype=k_ohclv_dtypes)
     expected = k_ohclv_success_df
     assert_frame_equal(data, expected)
+
+
+# validate method tests
+
+def test_kraken_ohlcv_validate_incomplete_candle(mock_validate):
+    # given
+    pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
+    candles = KrakenOHLCV(Interval.MINUTE, pair, 2)
+    candles._last_valid_time = 1560123060
+    candles._data = k_ohclv_incomplete_candle_df
+    # when/then
+    error_msg_regx = re.compile('candle', re.IGNORECASE)
+    with pytest.raises(ValueError, match=error_msg_regx):
+        data = candles.validate()

@@ -22,7 +22,7 @@ def test_kraken_ohlcv_fetch_past():
     # given
     pair = SymbolPair(Symbol.BITCOIN, Symbol.USD)
     candles = KrakenOHLCV(Interval.DAY, pair, 2)
-    candles.set_to_time(1562197365.6)
+    candles.to_time = 1562197365.6
     # when
     data = candles.fetch()
     # then
