@@ -29,5 +29,11 @@ jobs:
     #     skip_cleanup: true
     #     on:
     #       tags: true
-notifications:
-  webhooks: https://discordapp.com/api/webhooks/605156726265741316/r__4xDqi8oiZeczD5f69mPef0MgRdek-_-Gjmfg_BK5X4IjhgfAvyauoB5XxFf5G2uSN
+after_success:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh success $WEBHOOK_URL
+after_failure:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh failure $WEBHOOK_URL
