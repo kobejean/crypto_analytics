@@ -47,7 +47,6 @@ class DataSource(ABC):
 class TimeSeriesDataSource(DataSource):
     """ An abstract class for all time series data sources """
     max_rows: int
-    default_rows: int
 
     def __init__(self, interval: Interval, rows: Optional[int] = None):
         self._interval = interval
