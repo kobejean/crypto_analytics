@@ -80,8 +80,7 @@ class KrakenOHLCV(OHLCVDataSource):
 
     def validate(self):
         super().validate()
-        data: pd.DataSource = unwrap(self.data)
-        last_time_data = data.at[data.index[-1], 'time']
+        last_time_data = self.data.at[self.data.index[-1], 'time']
 
         if last_time_data > self._last_valid_time:
             raise ValueError('Last candle was not completed')

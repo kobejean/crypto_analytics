@@ -41,6 +41,3 @@ class CoinMarketCap(DataSource):
             print(e)
             self._data = None
             return self.data
-
-    def write(self, filepath: str):
-        self._data.to_csv(filepath)

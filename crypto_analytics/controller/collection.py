@@ -15,7 +15,7 @@ class CollectionController(Controller):
 
     def __init__(self, pair: SymbolPair, data_sources: DataSourcesType, redundancy: int = 1):
         """ Creates the CollectionController collection object """
-        queue = []
+        queue: List[Tuple[RealNumber, int, str]] = []
         for copy_id in range(redundancy):
             for name, data_source in data_sources.items():
                 redundancy_spacing = copy_id * (data_source.fetch_period / redundancy)
@@ -25,15 +25,24 @@ class CollectionController(Controller):
 
         heapq.heapify(queue)
 
-        self.redundancy = redundancy
-        self.data_sources = data_sources
-        self.queue = queue
+        self._redundancy = redundancy
+        self._data_sources = data_sources
+        self._queue = queue
+
+
+    @property
+    def redundancy(self) -> int:
+        return self._redundancy
+
+    @property
+    def data_sources(self) -> DataSourcesType:
+        return self._data_sources
 
     def run(self):
-        while len(self.queue) > 0:
-            print(_format_queue(self.queue))
+        while len(self._queue) > 0:
+            print(_format_queue(self._queue))
             # pop queue task
-            fetch_time, copy_id, source_name = heapq.heappop(self.queue)
+            fetch_time, copy_id, source_name = heapq.heappop(self._queue)
             data_source = self.data_sources[source_name]
 
             # find time remaining and wait
@@ -57,7 +66,10 @@ class CollectionController(Controller):
 
             # schedule and push new task to queue
             next_fetch_time = fetch_time + data_source.fetch_period
-            heapq.heappush(self.queue, (next_fetch_time, copy_id, source_name))
+            heapq.heappush(self._queue, (next_fetch_time, copy_id, source_name))
+
+
+# private helper functions
 
 def _countdown(to_time):
     time_remaining = max(to_time - time.time(), 0)

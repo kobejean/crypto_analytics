@@ -26,7 +26,7 @@ class DataHandler(ABC):
         return self._data_sources
 
     @abstractmethod
-    def fetch(self) -> Optional[pd.DataFrame]:
+    def fetch(self) -> pd.DataFrame:
         """ Fetches the data from all data sources and returns the data """
         pass
 
