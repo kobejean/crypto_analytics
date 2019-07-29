@@ -1,5 +1,5 @@
-from crypto_analytics.collection.data_handler import ColumnMapper
-from crypto_analytics.collection.data_source import CryptoCompareOHLCV, KrakenOHLCV
+from crypto_analytics.data_handler import ColumnMapper
+from crypto_analytics.data_source import CryptoCompareOHLCV, KrakenOHLCV
 from crypto_analytics.types import Interval, MergeType
 from crypto_analytics.types.symbol import SymbolPair
 

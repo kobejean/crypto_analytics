@@ -6,7 +6,7 @@ from typing import Dict, Union
 from enum import Enum
 from requests import Request, Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
-from crypto_analytics.collection.data_source import DataSource
+from crypto_analytics.data_source import DataSource
 from crypto_analytics.types import Interval
 
 class CoinMarketCap(DataSource):
@@ -27,17 +27,12 @@ class CoinMarketCap(DataSource):
         super().__init__()
 
     def fetch(self) -> pd.DataFrame:
-        try:
-            response = self.session.get(self.url, params=self.params)
-            response.raise_for_status
-            if response.status_code != 200:
-                raise ConnectionError('Code: {}\nReason: {}'.format(response.status_code,
-                                                                    response.reason))
+        response = self.session.get(self.url, params=self.params)
+        response.raise_for_status
+        if response.status_code != 200:
+            raise ConnectionError('Code: {}\nReason: {}'.format(response.status_code,
+                                                                response.reason))
 
-            data = response.json()
-            self._data = pd.DataFrame(data['data'])
-            return self.data
-        except (ConnectionError, Timeout, TooManyRedirects) as e:
-            print(e)
-            self._data = None
-            return self.data
+        data = response.json()
+        self._data = pd.DataFrame(data['data'])
+        return self.data

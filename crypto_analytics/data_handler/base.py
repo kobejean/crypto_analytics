@@ -3,7 +3,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Mapping, Optional
 
-from crypto_analytics.collection.data_source import TimeSeriesDataSource
+from crypto_analytics.data_source import TimeSeriesDataSource
 from crypto_analytics.types import MergeType
 from crypto_analytics.utils.typing import RealNumber, coalesce
 
@@ -51,7 +51,7 @@ class ColumnMapper(DataHandler):
 
     def fetch(self) -> pd.DataFrame:
         """ Fetches the data from all data sources and returns the data """
-        merge_how = self.merge_type.to_merge_how()
+        merge_how = self.merge_type.pandas()
         tmp_data = None
 
         # merge data sources

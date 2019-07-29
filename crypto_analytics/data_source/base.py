@@ -42,6 +42,12 @@ class DataSource(ABC):
         if not isinstance(self.data, pd.DataFrame):
             raise ValueError('The data is not an instance of the pandas DataFrame type')
 
+    def safe_fetch(self) -> pd.DataFrame:
+        self.prevalidate()
+        data = self.fetch()
+        self.validate()
+        return data
+
 
 
 class TimeSeriesDataSource(DataSource):
@@ -72,7 +78,7 @@ class TimeSeriesDataSource(DataSource):
 
     @property
     def fetch_period(self) -> RealNumber:
-        return self.interval.to_unix_time() * self.rows
+        return self.interval.unix * self.rows
 
     def prevalidate(self):
         super().prevalidate()
@@ -83,7 +89,7 @@ class TimeSeriesDataSource(DataSource):
     def validate(self):
         super().validate()
         # check for gaps in data
-        gaps = self.time.loc[self.time.diff() != self.interval.to_unix_time()]
+        gaps = self.time.loc[self.time.diff() != self.interval.unix]
         gaps = gaps.drop(gaps.head(1).index)
         if len(gaps.index) > 0:
             message = '{} is missing rows at indices: {}'.format(self, gaps.index.values)

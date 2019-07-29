@@ -2,7 +2,7 @@ import requests, time, math
 import pandas as pd
 from typing import Dict, Union, Optional, cast
 
-from crypto_analytics.collection.data_source import OHLCVDataSource
+from crypto_analytics.data_source import OHLCVDataSource
 from crypto_analytics.types  import Interval
 from crypto_analytics.types.symbol import SymbolPair, CryptoCompareSymbolPairConverter
 from crypto_analytics import utils
@@ -16,11 +16,8 @@ class CryptoCompareOHLCV(OHLCVDataSource):
     }
 
     def fetch(self) -> pd.DataFrame:
-        self.prevalidate()
-        
         endpoint = type(self).endpoints.get(self.interval)
         url = 'https://min-api.cryptocompare.com/{}'.format(endpoint)
-
         converted_pair = CryptoCompareSymbolPairConverter.from_pair(self.pair)
         toTs = math.floor(self.to_time)
 
@@ -35,8 +32,6 @@ class CryptoCompareOHLCV(OHLCVDataSource):
 
         data = response.json()
         self._data = pd.DataFrame(data['Data']).head(self.rows)
-
-        self.validate()
         return self.data
 
     @property

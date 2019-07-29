@@ -2,7 +2,7 @@ import heapq, time, traceback
 from datetime import datetime
 from typing import Mapping, List, Tuple, Optional
 
-from crypto_analytics.collection.data_source import DataSource, TimeSeriesDataSource
+from crypto_analytics.data_source import DataSource, TimeSeriesDataSource
 from crypto_analytics.controller import Controller
 from crypto_analytics.types import Interval, MergeType, SymbolPair
 from crypto_analytics.utils.typing import RealNumber
@@ -14,14 +14,13 @@ class CollectionController(Controller):
     """ A controller to collect data from data sources """
     DataSourcesType = Mapping[str, TimeSeriesDataSource]
 
-    def __init__(self, data_sources: DataSourcesType, redundancy: int = 1):
+    def __init__(self, data_sources: DataSourcesType, redundancy: int = 1, cooldown=120):
         """ Creates the CollectionController collection object """
         queue: QueueType = []
         for copy_id in range(redundancy):
-            cooldown = 0
-            for name, data_source in data_sources.items():
+            for i, (name, data_source) in enumerate(data_sources.items()):
                 redundancy_spacing = copy_id * (data_source.fetch_period / redundancy)
-                fetch_time = data_source.to_time + redundancy_spacing
+                fetch_time = data_source.to_time + redundancy_spacing + i*cooldown
                 queue.append((fetch_time, copy_id, name))
 
         heapq.heapify(queue)
