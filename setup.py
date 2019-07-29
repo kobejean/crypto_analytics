@@ -9,7 +9,6 @@ setup(name='crypto_analytics',
       # license='',
       packages=[
           'crypto_analytics',
-          'crypto_analytics.collection',
           'crypto_analytics.data_handler',
           'crypto_analytics.data_source',
           'crypto_analytics.controller',
