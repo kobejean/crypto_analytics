@@ -57,7 +57,7 @@ class ColumnMapper(DataHandler):
         # merge data sources
         for name, data_source in self.data_sources.items():
             # fetch data
-            current_data = data_source.fetch()
+            current_data = data_source.safe_fetch()
             # rename columns
             columns = self.column_map.get(name, {})
             current_data.rename(columns=columns, inplace=True)

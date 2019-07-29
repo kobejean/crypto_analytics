@@ -10,10 +10,10 @@ jobs:
     - name: Code Linting
       script: mypy --ignore-missing-imports crypto_analytics
     - name: Unit Tests
-      script: pytest --cov=crypto_analytics tests/unit_tests/
+      script: pytest --cov=crypto_analytics tests/unit_tests/ -vv
     - name: Integration Tests
       if: type != push # wait for pull request before running integration tests
-      script: pytest --cov=crypto_analytics tests/integration_tests/
+      script: pytest --cov=crypto_analytics tests/integration_tests/ -vv
     #
     # - stage: Deploy
     #   if: tag IS present AND branch = master
