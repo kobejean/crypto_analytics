@@ -46,6 +46,7 @@ def mock_run(mocker):
 # run method tests
 
 def test_collection_controller_run_countdown_calls(setup_controller, mock_run):
+    """ Tests countdown function calls in run method. """
     # given
     sources = {
         'kraken': KrakenOHLCV(Interval.MINUTE, SymbolPair(Symbol.BITCOIN, Symbol.USD), 719),
@@ -60,6 +61,7 @@ def test_collection_controller_run_countdown_calls(setup_controller, mock_run):
     assert utils.time.countdown.call_args_list == expected
 
 def test_collection_controller_source_safe_fetch_success_calls(setup_controller, mock_run):
+    """ Tests data source safe_fetch method calls in run method. """
     # given
     sources = {
         'kraken': KrakenOHLCV(Interval.MINUTE, SymbolPair(Symbol.BITCOIN, Symbol.JPY), 719),
@@ -73,6 +75,7 @@ def test_collection_controller_source_safe_fetch_success_calls(setup_controller,
     assert KrakenOHLCV.safe_fetch.call_args_list == expected
 
 def test_collection_controller_source_write_sucess_calls(setup_controller, mock_run):
+    """ Tests data source write method calls in run method. """
     # given
     sources = {
         'crypto_compare': CryptoCompareOHLCV(Interval.MINUTE, SymbolPair(Symbol.ETHERIUM, Symbol.USD), 2000),
@@ -86,6 +89,7 @@ def test_collection_controller_source_write_sucess_calls(setup_controller, mock_
     assert CryptoCompareOHLCV.write.call_args_list == expected
 
 def test_collection_controller_source_safe_fetch_error(setup_controller, mock_run):
+    """ Tests run method error messaging when data source safe_fetch method fails. """
     # given
     sources = {
         'kraken': KrakenOHLCV(Interval.MINUTE, SymbolPair(Symbol.BITCOIN, Symbol.JPY), 719),
@@ -102,6 +106,7 @@ def test_collection_controller_source_safe_fetch_error(setup_controller, mock_ru
     assert expected in str(utils.console.error.call_args_list[0][0])
 
 def test_collection_controller_source_write_error(setup_controller, mock_run):
+    """ Tests run method error messaging when data source write method fails. """
     # given
     sources = {
         'crypto_compare': CryptoCompareOHLCV(Interval.MINUTE, SymbolPair(Symbol.ETHERIUM, Symbol.USD), 2000),
@@ -118,6 +123,7 @@ def test_collection_controller_source_write_error(setup_controller, mock_run):
     assert expected in str(utils.console.error.call_args_list[0][0])
 
 def test_collection_controller_heappush_calls(setup_controller, mock_run):
+    """ Tests heappush function calls in run method. """
     # given
     sources = {
         'kraken': KrakenOHLCV(Interval.MINUTE, SymbolPair(Symbol.LITECOIN, Symbol.USD), 360),
@@ -142,6 +148,7 @@ def test_collection_controller_heappush_calls(setup_controller, mock_run):
 # property tests
 
 def test_collection_controller_redundancy(setup_controller):
+    """ Tests redundancy property getter method. """
     # given
     sources = {
         'kraken': KrakenOHLCV(Interval.MINUTE, SymbolPair(Symbol.LITECOIN, Symbol.USD), 360),
@@ -154,6 +161,7 @@ def test_collection_controller_redundancy(setup_controller):
     assert result == expected
 
 def test_collection_controller_data_sources(setup_controller):
+    """ Tests data_sources property getter method. """
     # given
     sources = {
         'kraken': KrakenOHLCV(Interval.MINUTE, SymbolPair(Symbol.LITECOIN, Symbol.USD), 360),
