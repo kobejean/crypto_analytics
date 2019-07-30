@@ -30,8 +30,14 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         response = requests.get(url, params=parameters)
         response.raise_for_status()
 
-        data = response.json()
-        self._data = pd.DataFrame(data['Data']).head(self.rows)
+        response_json = response.json()
+
+        if response_json.get('Response') == 'Error':
+            raise Exception(response_json.get('Message'))
+        elif response_json.get('HasWarning'):
+            utils.console.warning(response_json.get('Message'))
+
+        self._data = pd.DataFrame(response_json['Data']).head(self.rows)
         return self.data
 
     @property
