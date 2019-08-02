@@ -10,7 +10,6 @@ class PumpPredictionDataHandler(ColumnMapper):
         """ Creates the PumpPredictionDataHandler data handler object """
         interval = Interval.MINUTE
         merge_type = MergeType.INTERSECT
-
         data_sources = {
             'crypto_compare_ohlcv': CryptoCompareOHLCV(interval, pair, rows),
             'kraken_ohlcv': KrakenOHLCV(interval, pair, rows),

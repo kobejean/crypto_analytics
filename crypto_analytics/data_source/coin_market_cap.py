@@ -12,6 +12,7 @@ from crypto_analytics.types import Interval
 class CoinMarketCap(DataSource):
 
     def __init__(self, key: str, endpoint: str):
+        super().__init__()
         self.key = key
         self.endpoint = endpoint
         self.url = "https://pro-api.coinmarketcap.com/" + endpoint
@@ -23,8 +24,6 @@ class CoinMarketCap(DataSource):
 
         self.session = Session()
         self.session.headers.update(self.headers)
-
-        super().__init__()
 
     def fetch(self) -> pd.DataFrame:
         response = self.session.get(self.url, params=self.params)

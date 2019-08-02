@@ -33,7 +33,7 @@ def mock_run(mocker):
         mocker.patch.object(utils.console, 'error')
         # mock data source methods
         for source in sources.values():
-            mocker.patch.object(type(source), 'safe_fetch')
+            mocker.patch.object(type(source), 'validated_fetch')
             mocker.patch.object(type(source), 'write')
             mocker.patch.object(type(source), 'time')
             type(source).time = pd.Series([fake_time])
@@ -60,8 +60,8 @@ def test_collection_controller_run_countdown_calls(setup_controller, mock_run):
     expected = [call(1560123060.0), call(1560123180.0), call(1560144630.0), call(1560183180.0)]
     assert utils.time.countdown.call_args_list == expected
 
-def test_collection_controller_source_safe_fetch_success_calls(setup_controller, mock_run):
-    """ Tests data source safe_fetch method calls in run method. """
+def test_collection_controller_source_validated_fetch_success_calls(setup_controller, mock_run):
+    """ Tests data source validated_fetch method calls in run method. """
     # given
     sources = {
         'kraken': KrakenOHLCV(Interval.MINUTE, SymbolPair(Symbol.BITCOIN, Symbol.JPY), 719),
@@ -72,7 +72,7 @@ def test_collection_controller_source_safe_fetch_success_calls(setup_controller,
     controller.run()
     # then
     expected = [call(), call(), call()]
-    assert KrakenOHLCV.safe_fetch.call_args_list == expected
+    assert KrakenOHLCV.validated_fetch.call_args_list == expected
 
 def test_collection_controller_source_write_sucess_calls(setup_controller, mock_run):
     """ Tests data source write method calls in run method. """
@@ -88,16 +88,16 @@ def test_collection_controller_source_write_sucess_calls(setup_controller, mock_
     expected = [call('crypto_compare_0_07_28_2019.csv')]
     assert CryptoCompareOHLCV.write.call_args_list == expected
 
-def test_collection_controller_source_safe_fetch_error(setup_controller, mock_run):
-    """ Tests run method error messaging when data source safe_fetch method fails. """
+def test_collection_controller_source_validated_fetch_error(setup_controller, mock_run):
+    """ Tests run method error messaging when data source validated_fetch method fails. """
     # given
     sources = {
         'kraken': KrakenOHLCV(Interval.MINUTE, SymbolPair(Symbol.BITCOIN, Symbol.JPY), 719),
     }
     controller = setup_controller(sources, 1, 60)
     mock_run(sources)
-    error_msg = 'safe_fetch failed'
-    KrakenOHLCV.safe_fetch.side_effect = Exception(error_msg)
+    error_msg = 'validated_fetch failed'
+    KrakenOHLCV.validated_fetch.side_effect = Exception(error_msg)
     # when
     controller.run()
     # then

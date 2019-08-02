@@ -12,8 +12,8 @@ class DataSource(ABC):
     """ An abstract base class for all data sources """
 
     def __init__(self):
-        self._data = None
         super().__init__()
+        self._data = None
 
     @property
     def data(self) -> Optional[pd.DataFrame]:
@@ -31,6 +31,7 @@ class DataSource(ABC):
         else:
             data.to_csv(filepath, index=False)
 
+    @abstractmethod
     def prevalidate(self):
         pass
 
@@ -42,7 +43,7 @@ class DataSource(ABC):
         if not isinstance(self.data, pd.DataFrame):
             raise ValueError('The data is not an instance of the pandas DataFrame type')
 
-    def safe_fetch(self) -> pd.DataFrame:
+    def validated_fetch(self) -> pd.DataFrame:
         self.prevalidate()
         data = self.fetch()
         self.validate()
@@ -55,10 +56,10 @@ class TimeSeriesDataSource(DataSource):
     max_rows: int
 
     def __init__(self, interval: Interval, rows: Optional[int] = None):
+        super().__init__()
         self._interval = interval
         self._rows = coalesce(rows, type(self).max_rows)
         self._to_time: Optional[RealNumber] = None
-        super().__init__()
 
     @property
     def interval(self) -> Interval:
@@ -109,8 +110,8 @@ class TimeSeriesDataSource(DataSource):
 class OHLCDataSource(TimeSeriesDataSource):
     """ An abstract class for all OHLC data sources """
     def __init__(self, interval: Interval, pair: SymbolPair, rows: Optional[int] = None):
-        self.pair = pair
         super().__init__(interval, rows)
+        self.pair = pair
 
     @abstractproperty
     def open(self) -> pd.Series:

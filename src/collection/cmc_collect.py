@@ -10,5 +10,5 @@ key = input('Key: ')
 output_file = input('Output File: ')
 
 coin_market_cap = CoinMarketCap(key, endpoint)
-coin_market_cap.safe_fetch()
+coin_market_cap.validated_fetch()
 coin_market_cap.write(output_file)

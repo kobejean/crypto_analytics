@@ -44,10 +44,10 @@ class ColumnMapper(DataHandler):
                  column_map: ColumnMapType = {},
                  merge_type: MergeType = MergeType.INTERSECT):
         """ Creates the ColumnMapper data handler object """
+        super().__init__(data_sources)
         self._column_map = column_map
         self._merge_type = merge_type
         self._to_time: Optional[RealNumber] = None
-        super().__init__(data_sources)
 
     def fetch(self) -> pd.DataFrame:
         """ Fetches the data from all data sources and returns the data """
@@ -57,7 +57,7 @@ class ColumnMapper(DataHandler):
         # merge data sources
         for name, data_source in self.data_sources.items():
             # fetch data
-            current_data = data_source.safe_fetch()
+            current_data = data_source.validated_fetch()
             # rename columns
             columns = self.column_map.get(name, {})
             current_data.rename(columns=columns, inplace=True)

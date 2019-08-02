@@ -14,7 +14,7 @@ rows = 5
 output_file = 'k_collect_data.csv'
 
 candles = KrakenOHLCV(interval, pair, rows)
-candles.safe_fetch()
+candles.validated_fetch()
 print(candles.data)
 print('time:', candles.time.head(), sep='\n')
 print('open:', candles.open.head(), sep='\n')

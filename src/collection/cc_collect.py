@@ -15,7 +15,7 @@ rows = 60
 output_file = 'cc_collect_data.csv'
 
 candles = CryptoCompareOHLCV(interval, pair, rows)
-candles.safe_fetch()
+candles.validated_fetch()
 print(candles.data)
 print('time:', candles.time.head(), sep='\n')
 print('open:', candles.open.head(), sep='\n')

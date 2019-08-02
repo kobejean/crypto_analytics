@@ -54,7 +54,7 @@ class CollectionController(Controller):
             # fetch data
             try:
                 data_source.to_time = fetch_time
-                data_source.safe_fetch()
+                data_source.validated_fetch()
             except Exception:
                 message = 'Failed to fetch data for source_name: {} copy_id: {}\n{}'.format(source_name, copy_id, traceback.format_exc())
                 utils.console.error(message)
@@ -62,7 +62,7 @@ class CollectionController(Controller):
             # write to file
             try:
                 start_time = data_source.time[0]
-                start_date = utils.time.format_time(start_time, '%Y_%m_%d')
+                start_date = utils.time.format_time(start_time, '%Y')
                 filename = '{}_{}_{}.csv'.format(source_name, copy_id, start_date)
                 data_source.write(filename)
             except Exception as e:
