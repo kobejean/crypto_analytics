@@ -1,7 +1,7 @@
 import pytest, time, requests, re, os
 import pandas as pd
 from unittest.mock import call
-from pandas.util.testing import assert_frame_equal, assert_series_equal
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 from crypto_analytics.data_source import DataSource
 from crypto_analytics.types import Interval
