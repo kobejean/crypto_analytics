@@ -10,6 +10,7 @@ class Symbol(Enum):
     # Fiat (ISO 4217)
     JPY = 'JPY'
     USD = 'USD'
+    VND = 'VND'
     # Crypto (full name in UPPER_CASE, until we have an official standard)
     BINANCE_COIN = 'BINANCE_COIN'
     BITCOIN = 'BITCOIN'
@@ -26,6 +27,7 @@ class Symbol(Enum):
 class SymbolStandard(Enum):
     CRYPTO_COMPARE = 'CRYPTO_COMPARE'
     KRAKEN = 'KRAKEN'
+    STABLE_WORLD = 'STABLE_WORLD'
 
 
 SymbolPair = NamedTuple('SymbolPair', [('fsym', Symbol), ('tsym', Symbol)])
