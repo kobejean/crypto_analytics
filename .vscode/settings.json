@@ -4,9 +4,5 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.terminal.activateEnvironment": true,
-    "python.analysis.extraPaths": [
-        "${workspaceFolder}/crypto_analytics",
-        "${workspaceFolder}/tests"
-    ]
+    "python.terminal.activateEnvironment": true
 }
