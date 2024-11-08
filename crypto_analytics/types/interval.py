@@ -4,7 +4,7 @@ from enum import Enum
 class Interval(Enum):
     SECOND = 'SECOND'
     MINUTE = 'MINUTE'
-    HOUR = 'HOUR'
+    HOUR = 'SECOND'
     DAY = 'DAY'
 
     @property
