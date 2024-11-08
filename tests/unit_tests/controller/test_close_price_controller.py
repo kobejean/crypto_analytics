@@ -21,7 +21,7 @@ def test_close_price_controller_run_usdjpy():
     close_price = controller.run()
     # then
     expected = 152.49 # usdjpy
-    assert math.isclose(close_price, expected, abs_tol=1e-2)
+    assert close_price == expected
 
 
 def test_close_price_controller_run_jpyvnd():
@@ -35,5 +35,5 @@ def test_close_price_controller_run_jpyvnd():
     close_price = controller.run()
     # then
     expected = 165.75 # jpyvnd
-    assert math.isclose(close_price, expected, abs_tol=1e-2)
+    assert close_price == expected
 
