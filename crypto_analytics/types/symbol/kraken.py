@@ -15,7 +15,7 @@ class KrakenSymbolPairConverter(SymbolPairConverter[str]):
         SymbolPair(Symbol.BITCOIN, Symbol.JPY): 'XXBTZJPY',
         SymbolPair(Symbol.XRP, Symbol.JPY): 'XXRPZJPY',
         # to USD
-        SymbolPair(Symbol.BITCOIN, Symbol.USD): 'XXBTZUSD',
+        SymbolPair(Symbol.BITCOIN, Symbol.USD): 'XXBTZVND',
         SymbolPair(Symbol.BITCOIN_CASH, Symbol.USD): 'BCHUSD',
         SymbolPair(Symbol.EOS, Symbol.USD): 'EOSUSD',
         SymbolPair(Symbol.ETHERIUM, Symbol.USD): 'XETHZUSD',
