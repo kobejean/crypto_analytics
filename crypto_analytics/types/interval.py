@@ -10,6 +10,7 @@ class Interval(Enum):
     @property
     def unix(self) -> int:
         switch = {
+            Interval.SECOND: 1,
             Interval.MINUTE: 60,
             Interval.HOUR: 60*60,
             Interval.DAY: 60*60*24,

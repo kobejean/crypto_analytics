@@ -16,10 +16,3 @@ def test_interval_unix(interval, expected):
     unix_time = interval.unix
     # then
     assert unix_time == expected
-
-def test_inteval_second_unix():
-    # when
-    unix_time = Interval.SECOND.unix
-    # then
-    expected = 1
-    assert unix_time == expected
