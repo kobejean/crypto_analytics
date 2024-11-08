@@ -2,6 +2,7 @@
 from enum import Enum
 
 class Interval(Enum):
+    SECOND = 'SECOND'
     MINUTE = 'MINUTE'
     HOUR = 'HOUR'
     DAY = 'DAY'
