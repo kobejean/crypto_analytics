@@ -23,4 +23,4 @@ class ClosePriceController(Controller):
             message = 'Failed to fetch data:\n{}'.format(traceback.format_exc())
             utils.console.error(message)
 
-        return self._data_source.close.iloc[-1]
+        return self._data_source.data.iloc[-1, 5]
