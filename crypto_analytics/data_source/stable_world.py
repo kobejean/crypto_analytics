@@ -12,11 +12,6 @@ class StableWorldOHLCV(OHLCVDataSource):
     columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
     # TODO: define appropriate dtypes
     dtypes = {'time': np.int64, 'open': object, 'high': object, 'low': object, 'close': object, 'vwap': object, 'volume': object, 'count': np.int64 }
-    interval_values = {
-        Interval.MINUTE: 1,
-        Interval.HOUR: 60,
-        Interval.DAY: 60*24,
-    }
 
     dollar_val = {
         Symbol.BITCOIN: 0.000013,
@@ -25,7 +20,7 @@ class StableWorldOHLCV(OHLCVDataSource):
         Symbol.VND: 25_274.99,
     }
 
-    def __init__(self, interval: Interval, pair: SymbolPair, rows: Optional[int] = 5):
+    def __init__(self, interval: Interval, pair: SymbolPair, rows: Optional[int] = None):
         super().__init__(interval, pair, rows)
         self._interval= interval
         self._pair = pair
