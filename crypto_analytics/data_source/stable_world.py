@@ -28,7 +28,7 @@ class StableWorldOHLCV(OHLCVDataSource):
     def fetch(self) -> pd.DataFrame:
         value = self.dollar_val[self._pair.tsym] / self.dollar_val[self._pair.fsym]
 
-        data_array = [[9] + [value]*4 + [0]*3 for t in range(self.rows)]
+        data_array = [[t] + [value]*4 + [0]*3 for t in range(self.rows)]
         data = pd.DataFrame(data_array, columns=StableWorldOHLCV.columns)
         data = data.head(self.rows)
         data = data.astype(StableWorldOHLCV.dtypes)
