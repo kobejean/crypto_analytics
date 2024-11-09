@@ -17,10 +17,6 @@ class ClosePriceController(Controller):
 
     def run(self):
 
-        try:
-            self._data_source.validated_fetch()
-        except Exception:
-            message = 'Failed to fetch data:\n{}'.format(traceback.format_exc())
-            utils.console.error(message)
+        self._data_source.validated_fetch()
 
         return self._data_source.close.iloc[-1]

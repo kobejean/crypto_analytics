@@ -15,7 +15,7 @@ def test_close_price_controller_run_usdjpy():
     # given
     interval = Interval.MINUTE
     pair = SymbolPair(Symbol.USD, Symbol.JPY)
-    datasource = StableWorldOHLCV(interval, pair, 1)
+    datasource = StableWorldOHLCV(interval, pair, 10)
     controller = ClosePriceController(datasource)
     # when
     close_price = controller.run()
@@ -28,7 +28,7 @@ def test_close_price_controller_run_jpyvnd():
     # given
     interval = Interval.MINUTE
     pair = SymbolPair(Symbol.JPY, Symbol.VND)
-    rows = 1
+    rows = 10
     datasource = StableWorldOHLCV(interval, pair, rows)
     controller = ClosePriceController(datasource)
     # when
