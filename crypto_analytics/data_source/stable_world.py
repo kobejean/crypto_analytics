@@ -33,7 +33,7 @@ class StableWorldOHLCV(OHLCVDataSource):
         data = pd.DataFrame(data_array, columns=StableWorldOHLCV.columns)
         data = data.head(self.rows)
         data = data.astype(StableWorldOHLCV.dtypes)
-        self._data = data
+
         return self.data
 
     @property
