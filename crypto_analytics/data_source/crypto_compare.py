@@ -41,10 +41,6 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         return self.data
 
     @property
-    def time(self) -> pd.Series:
-        return cast(pd.DataFrame, self.data)['time']
-
-    @property
     def open(self) -> pd.Series:
         return cast(pd.DataFrame, self.data)['open']
 
