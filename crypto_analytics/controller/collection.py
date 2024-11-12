@@ -44,7 +44,7 @@ class CollectionController(Controller):
         while len(self._queue) > 0:
             print(_format_queue(self._queue))
             # pop queue task
-            fetch_time, copy_id, source_name = heapq.heappop(self._queue)
+            fetch_time, copy_id, source_name = heapq.heappop(self.queue)
             data_source = self.data_sources[source_name]
 
             # wait until next fetch
