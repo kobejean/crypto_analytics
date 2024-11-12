@@ -17,7 +17,7 @@ class DataSource(ABC):
 
     @property
     def data(self) -> Optional[pd.DataFrame]:
-        return self._data
+        return self.data
 
     @abstractmethod
     def fetch(self) -> pd.DataFrame:
