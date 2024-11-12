@@ -47,7 +47,7 @@ class KrakenSymbolPairConverter(SymbolPairConverter[str]):
         try:
             result = cls.from_pair_map[pair]
         except:
-            raise SymbolPairConverterError(pair, cls.standard)
+            raise SymbolPairConverterError(pair)
         return result
 
     @classmethod
