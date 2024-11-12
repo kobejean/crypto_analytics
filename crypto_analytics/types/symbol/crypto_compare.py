@@ -5,7 +5,7 @@ from .base import SymbolStandard, Symbol, SymbolPair, SymbolPairConverter, Symbo
 CryptoCompareSymbolPair = NamedTuple('CryptoCompareSymbolPair', [('fsym', str), ('tsym', str)])
 
 class CryptoCompareSymbolPairConverter(SymbolPairConverter[CryptoCompareSymbolPair]):
-    standard = SymbolStandard.CRYPTO_COMPARE
+    standard = SymbolStandard.KRAKEN
     # data from https://min-api.cryptocompare.com/documentation?key=PairMapping&cat=pairMappingMappedSymbolEndpoint
     from_symbol_map = {
         # Fiat
