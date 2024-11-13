@@ -33,7 +33,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         response_json = response.json()
 
         if response_json.get('Response') == 'Error':
-            raise Exception(response_json.get('Message'))
+            raise Exception(response_json.get('Messages'))
         elif response_json.get('HasWarning'):
             utils.console.warning(response_json.get('Message'))
 
@@ -59,3 +59,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
     @property
     def volume(self) -> pd.Series:
         return cast(pd.DataFrame, self.data)['volumefrom']
+
+    @property
+    def time(self) -> pd.Series:
+        return cast(pd.DataFrame, self.data)['time']
