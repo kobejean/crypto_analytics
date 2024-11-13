@@ -17,7 +17,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
 
     def fetch(self) -> pd.DataFrame:
         endpoint = type(self).endpoints.get(self.interval)
-        url = 'https://min-api.cryptocompare.com/{}'.format(endpoint)
+        url = 'https://api.cryptocompare.com/{}'.format(endpoint)
         converted_pair = CryptoCompareSymbolPairConverter.from_pair(self.pair)
         toTs = math.floor(self.to_time)
 
