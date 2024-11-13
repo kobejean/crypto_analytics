@@ -10,9 +10,9 @@ from crypto_analytics import utils
 class CryptoCompareOHLCV(OHLCVDataSource):
     max_rows = 2000
     endpoints = {
-        Interval.MINUTE: 'data/histominute',
-        Interval.HOUR: 'data/histohour',
-        Interval.DAY: 'data/histoday',
+        Interval.MINUTE: 'datas/histominute',
+        Interval.HOUR: 'datas/histohour',
+        Interval.DAY: 'datas/histoday',
     }
 
     def fetch(self) -> pd.DataFrame:
@@ -33,7 +33,7 @@ class CryptoCompareOHLCV(OHLCVDataSource):
         response_json = response.json()
 
         if response_json.get('Response') == 'Error':
-            raise Exception(response_json.get('Messages'))
+            raise Exception(response_json.get('Message'))
         elif response_json.get('HasWarning'):
             utils.console.warning(response_json.get('Message'))
 
