@@ -10,7 +10,7 @@ from crypto_analytics import utils
 class CryptoCompareOHLCV(OHLCVDataSource):
     max_rows = 2000
     endpoints = {
-        Interval.MINUTE: 'data/histominute',
+        Interval.MINUTE: 'data/histoday',
         Interval.HOUR: 'data/histohour',
         Interval.DAY: 'data/histoday',
     }
