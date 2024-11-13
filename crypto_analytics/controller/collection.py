@@ -27,7 +27,7 @@ class CollectionController(Controller):
 
         heapq.heapify(queue)
 
-        self._redundancy = redundancy
+        self.redundancy = redundancy
         self._data_sources = data_sources
         self._queue: QueueType = queue
 
