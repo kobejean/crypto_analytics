@@ -43,7 +43,7 @@ class KrakenOHLCV(OHLCVDataSource):
 
         # parse response
         response_json = response.json()
-        last_valid_time = int(response_json.get('result', {}).get('last'))
+        last_valid_time = int(response_json.get('results', {}).get('last'))
         data_array = response_json.get('result', {}).get(self._converted_pair, {})
         data = pd.DataFrame(data_array, columns=KrakenOHLCV.columns)
         if data.at[data.index[-1], 'time'] > last_valid_time:
