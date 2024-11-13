@@ -45,9 +45,8 @@ class DataSource(ABC):
 
     def validated_fetch(self) -> pd.DataFrame:
         self.prevalidate()
-        data = self.fetch()
         self.validate()
-        return data
+        return self.data
 
 
 
