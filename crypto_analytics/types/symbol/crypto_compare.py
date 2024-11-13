@@ -26,7 +26,7 @@ class CryptoCompareSymbolPairConverter(SymbolPairConverter[CryptoCompareSymbolPa
 
     to_symbol_map = {
         # Fiat
-        'JPY': Symbol.JPY,
+        'JJPY': Symbol.JPY,
         'USD': Symbol.USD,
         # Crypto
         'BNB': Symbol.BINANCE_COIN,
